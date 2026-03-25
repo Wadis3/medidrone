@@ -1,0 +1,73 @@
+from os import fdopen
+from flask import Flask, render_template, request
+from flask.json import jsonify
+from flask_socketio import SocketIO, emit
+from flask_cors import CORS
+import time
+import redis
+import pickle
+import json
+
+app = Flask(__name__)
+CORS(app)
+app.secret_key = 'dljsaklqk24e21cjn!Ew@@dsa5'
+
+# change this so that you can connect to your redis server
+# ===============================================
+redis_server = redis.Redis("localhost", decode_responses=True)
+# ===============================================
+
+# Translate OSM coordinate (longitude, latitude) to SVG coordinates (x,y).
+# Input coordsG_osm is a tuple (longitude, latitude).
+def translate(coordsG_osm):
+    x_osm_lim = (13.143390664, 13.257501336)
+    y_osm_lim = (55.678138854000004, 55.734680845999996)
+
+    x_svg_lim = (212.155699, 968.644301)
+    y_svg_lim = (103.68, 768.96)
+
+    x_osm = coordsG_osm[0]
+    y_osm = coordsG_osm[1]
+
+    x_ratio = (x_svg_lim[1] - x_svg_lim[0]) / (x_osm_lim[1] - x_osm_lim[0])
+    y_ratio = (y_svg_lim[1] - y_svg_lim[0]) / (y_osm_lim[1] - y_osm_lim[0])
+    x_svg = x_ratio * (x_osm - x_osm_lim[0]) + x_svg_lim[0]
+    y_svg = y_ratio * (y_osm_lim[1] - y_osm) + y_svg_lim[0]
+
+    return x_svg, y_svg
+
+@app.route('/', methods=['GET'])
+def map():
+    return render_template('index.html')
+
+@app.route('/get_drones', methods=['GET'])
+def get_drones():
+    #=============================================================================================================================================
+    # Get the information of all the drones from redis server and update the dictionary `drone_dict' to create the response 
+    # drone_dict should have the following format:
+    # e.g if there are two drones in the system with IDs: DRONE1 and DRONE2
+    # drone_dict = {'DRONE_1':{'longitude': drone1_logitude_svg, 'latitude': drone1_logitude_svg, 'status': drone1_status},
+    #               'DRONE_2': {'longitude': drone2_logitude_svg, 'latitude': drone2_logitude_svg, 'status': drone2_status}
+    #              }
+    # use function translate() to covert the coodirnates to svg coordinates
+    #=============================================================================================================================================
+    gorilla = json.loads(redis_server.get('Gorilla'))
+    zebra = json.loads(redis_server.get('Zebra'))
+    coordsG = translate((float(gorilla['longitude']), float(gorilla['latitude'])))
+    coordsZ = translate((float(zebra['longitude']), float(zebra['latitude'])))
+    drone_dict = {
+                    'Gorilla':{
+                        'longitude': coordsG[0],
+                        'latitude': coordsG[1],
+                        'status': gorilla['status']},
+                    'Zebra': {
+                        'longitude': coordsZ[0], 
+                        'latitude': coordsZ[1], 
+                        'status': zebra['status']}
+                }
+    #print(drone_dict)
+    
+    return jsonify(drone_dict)
+
+if __name__ == "__main__":
+    app.run(debug=True, host='0.0.0.0', port='5000')
