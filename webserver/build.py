@@ -7,6 +7,7 @@ import time
 import redis
 import pickle
 import json
+import math
 
 app = Flask(__name__)
 CORS(app)
@@ -19,22 +20,14 @@ redis_server = redis.Redis("localhost", decode_responses=True)
 
 # Translate OSM coordinate (longitude, latitude) to SVG coordinates (x,y).
 # Input coordsG_osm is a tuple (longitude, latitude).
-def translate(coordsG_osm):
-    x_osm_lim = (13.143390664, 13.257501336)
-    y_osm_lim = (55.678138854000004, 55.734680845999996)
+def delta_coords(meters, angle, current):
+    y_meters = meters * math.sin(angle)
+    x_meters = meters * math.cos(angle)
 
-    x_svg_lim = (212.155699, 968.644301)
-    y_svg_lim = (103.68, 768.96)
+    d_long = y_meters / 111111
+    d_lat = x_meters / (111111 * math.cos(d_long + current[0]))
 
-    x_osm = coordsG_osm[0]
-    y_osm = coordsG_osm[1]
-
-    x_ratio = (x_svg_lim[1] - x_svg_lim[0]) / (x_osm_lim[1] - x_osm_lim[0])
-    y_ratio = (y_svg_lim[1] - y_svg_lim[0]) / (y_osm_lim[1] - y_osm_lim[0])
-    x_svg = x_ratio * (x_osm - x_osm_lim[0]) + x_svg_lim[0]
-    y_svg = y_ratio * (y_osm_lim[1] - y_osm) + y_svg_lim[0]
-
-    return x_svg, y_svg
+    return (current[0] + d_long, current[1] + d_lat)
 
 @app.route('/', methods=['GET'])
 def map():
