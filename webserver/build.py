@@ -33,6 +33,14 @@ def delta_coords(meters, angle, current):
 def map():
     return render_template('index.html')
 
+@app.route('/booking', methods=['GET'])
+def booking():
+    return render_template('booking.html')
+
+@app.route('/addDronePage', methods=['GET'])
+def addDronePage():
+    return render_template('addDrone.html')
+
 @app.route('/get_drones', methods=['GET'])
 def get_drones():
     #=============================================================================================================================================
