@@ -29,3 +29,9 @@ export class Drone {
         battery -= dBattery();
     }
 }
+
+        // Koordinater
+        // Markör
+        // IP
+        // Batteri
+        // *Last
