@@ -5,7 +5,6 @@ from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 import time
 import redis
-import pickle
 import json
 import math
 
@@ -17,6 +16,13 @@ app.secret_key = 'dljsaklqk24e21cjn!Ew@@dsa5'
 # ===============================================
 redis_server = redis.Redis("localhost", decode_responses=True)
 # ===============================================
+
+redis_server.set('hospital_coords', json.dumps({
+    'longitude': 50.361825,
+    'latitude': 35.915570,
+}))
+
+#redis_server.sadd('ips', '192.168.0.3')
 
 # Translate OSM coordinate (longitude, latitude) to SVG coordinates (x,y).
 # Input coordsG_osm is a tuple (longitude, latitude).
@@ -52,19 +58,14 @@ def get_drones():
     #              }
     # use function translate() to covert the coodirnates to svg coordinates
     #=============================================================================================================================================
-    gorilla = json.loads(redis_server.get('Gorilla'))
-    zebra = json.loads(redis_server.get('Zebra'))
-    coordsG = translate((float(gorilla['longitude']), float(gorilla['latitude'])))
-    coordsZ = translate((float(zebra['longitude']), float(zebra['latitude'])))
-    drone_dict = {
-                    'Gorilla':{
-                        'longitude': coordsG[0],
-                        'latitude': coordsG[1],
-                        'status': gorilla['status']},
-                    'Zebra': {
-                        'longitude': coordsZ[0], 
-                        'latitude': coordsZ[1], 
-                        'status': zebra['status']}
+    ips = redis_server.smembers('ips')
+    drone_dict = {}
+    for ip in ips:
+        drone = json.loads(redis_server.get(ip))
+        drone_dict[ip] = {
+                'longitude': drone['longitude'],
+                'latitude': drone['latitude'],
+                'status': drone['status']
                 }
     #print(drone_dict)
     
