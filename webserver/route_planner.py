@@ -26,49 +26,15 @@ def send_request(drone_url, coords):
 
 @app.route('/planner', methods=['POST'])
 def route_planner():
-    Addresses =  json.loads(request.data.decode())
-    FromAddress = Addresses['faddr']
-    ToAddress = Addresses['taddr']
-    from_location = geolocator.geocode(FromAddress + region, timeout=None)
-    to_location = geolocator.geocode(ToAddress + region, timeout=None)
-    if from_location is None:
-        message = 'Departure address not found, please input a correct address'
-        return message
-    elif to_location is None:
-        message = 'Destination address not found, please input a correct address'
-        return message
-    else:
-        # If the coodinates are found by Nominatim, the coords will need to be sent the a drone that is available
-        coords = {'from': (from_location.longitude, from_location.latitude),
-                  'to': (to_location.longitude, to_location.latitude),
-                  }
-        # ======================================================================
-        # Here you need to find a drone that is availale from the database. You need to check the status of the drone, there are two status, 'busy' or 'idle', only 'idle' drone is available and can be sent the coords to run delivery
-        # 1. Find avialable drone in the database (Hint: Check keys in RedisServer)
-        # if no drone is availble:
-        gorilla = json.loads(redis_server.get('Gorilla'))
-        zebra = json.loads(redis_server.get('Zebra'))
+    ips = redis_server.smembers('ips')
 
-        if (gorilla['status'] == 'idle'):
-            DRONE_IP = gorilla['IP']
-            DRONE_URL = 'http://' + DRONE_IP + ':5000'
-            send_request(DRONE_URL, coords)
-            message = 'Got address and sent request to the drone'
-        elif (zebra['status'] == 'idle'):
-            DRONE_IP = zebra['IP']
-            DRONE_URL = 'http://' + DRONE_IP + ':5000'
-            send_request(DRONE_URL, coords)
-            message = 'Got address and sent request to the drone'
-        else:
-            message = 'No available drone, try later'
-        
-        # else:
-            # 2. Get the IP of available drone, 
-        #DRONE_URL = 'http://' + DRONE_IP + ':5000'
-            # 3. Send coords to the URL of available drone
-        #message = 'Got address and sent request to the drone'
-    return message
-        # ======================================================================
+    for ip in ips:
+        drone = json.loads(redis_server.get(ip))
+        if drone['status'] == 'idle':
+            send_request('http://' + drone + ':5000/drone', [50.361825, 35.915570])
+    #print(drone_dict)
+    
+    return 'weee'
 
 
 if __name__ == "__main__":

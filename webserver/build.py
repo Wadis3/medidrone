@@ -18,8 +18,8 @@ redis_server = redis.Redis("localhost", decode_responses=True)
 # ===============================================
 
 redis_server.set('hospital_coords', json.dumps({
-    'longitude': 50.361825,
-    'latitude': 35.915570,
+    'longitude': 49.97425,
+    'latitude': 36.1960665,
 }))
 
 #redis_server.sadd('ips', '192.168.0.3')
