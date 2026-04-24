@@ -12,9 +12,7 @@ export class Drone {
         //L.marker([50.10574, 36.01122], {icon: drone}).addTo(map);
     }
 
-    deltaLatLng(delta, angle) {
-
-
+    deltaLatLng(meters, angle) {
         y_meters = meters * math.sin(angle)
         x_meters = meters * math.cos(angle)
 
