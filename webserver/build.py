@@ -65,7 +65,8 @@ def get_drones():
         drone_dict[ip] = {
                 'longitude': drone['longitude'],
                 'latitude': drone['latitude'],
-                'status': drone['status']
+                'status': drone['status'],
+                'battery': drone['battery']
                 }
     #print(drone_dict)
     

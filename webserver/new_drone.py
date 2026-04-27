@@ -35,7 +35,8 @@ def newDrone():
         redis_server.set(drone_ip, json.dumps({
             'longitude': coords['longitude'],
             'latitude': coords['latitude'],
-            'status': 'idle'
+            'status': 'idle',
+            'battery': 100.0
         }))
         return 'woho'
     

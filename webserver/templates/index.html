@@ -48,19 +48,16 @@
 
   <div id="text"></div>
   <script>
-  </script>
-
-  <script>
     var map = L.map('map').setView([50.130673, 36.224064], 9);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
-    
+  
     //L.marker([51.5, -0.09], {icon: greenIcon}).addTo(map);
     var hospitalMarker = L.marker([49.97425, 36.1960665], {icon: hospital}).addTo(map);
     var droneMarkers = {};
-    var drone_count = 0;
+    var drone_count = 0;    
     var fieldMarker = L.marker([50.361825, 35.915570], {icon: field}).addTo(map);
     var fieldMarker2 = L.marker([50.286543, 36.941948], {icon: field}).addTo(map);
     
@@ -76,21 +73,23 @@
       fillOpacity: 0.2,
       radius: 100000
     }).addTo(map);
-    </script>
+  </script>
 
-<script type="text/javascript">
-    function LoadDrone(droneIP, long, lat, status) {
+  <script type="text/javascript">
+    function LoadDrone(droneIP, long, lat, status, battery) {
       var doc = document.getElementById("map");
       $( doc ).ready(function() {
         //console.log(droneIP);
         if (droneIP in droneMarkers) {
           if (status != "idle") {
             droneMarkers[droneIP].setLatLng(L.latLng(parseFloat(long), parseFloat(lat)));
-          }
+          } 
         } else {
           droneMarkers[droneIP] = L.marker([long, lat], {icon: drone}).addTo(map);
-          droneMarkers[droneIP].bindPopup("<b>I'm a drone</b>");
         }
+        droneMarkers[droneIP].bindPopup(
+              "<b>IP: "+droneIP + "<br>Battery: "+ battery +"%</b>"
+            )
       })
     }
   </script> 
@@ -108,11 +107,12 @@
           var long = server_response[droneIP].longitude
           var lat = server_response[droneIP].latitude
           var status = server_response[droneIP].status
+          var battery = server_response[droneIP].battery
           if (status == "idle") {
             drone_count += 1;
           }
           console.log(droneIP)
-          LoadDrone(droneIP, long, lat, status)
+          LoadDrone(droneIP, long, lat, status, battery)
         }
         document.getElementById("text").innerHTML = "<h2>Available drones: " + drone_count + "</h2>";
       })

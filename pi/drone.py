@@ -7,6 +7,8 @@ app = Flask(__name__)
 CORS(app, supports_credentials=True)
 app.secret_key = 'dljsaklqk24e21cjn!Ew@@dsa5'
 
+battery = 100.0
+
 #drone_info = {'id': myID,
  #               'longitude': current_longitude,
   #              'latitude': current_latitude,
@@ -19,11 +21,11 @@ app.secret_key = 'dljsaklqk24e21cjn!Ew@@dsa5'
 
 myIP = '192.168.0.3'
 
-@app.route('/', methods=['POST'])
+@app.route('/', methods=['POST']) #Körs i new_drone
 def main():
     coords = request.json
 
-    with open("coordinates.txt", "w") as f:
+    with open("data.txt", "w") as f:
         print(str(coords[0]) + "\n" + str(coords[1]))
         f.write(str(coords[0]) + "\n" + str(coords[1]))
         
@@ -33,7 +35,7 @@ def main():
 def route():
     to_coords = request.json
 
-    f = open("coordinates.txt")
+    f = open("data.txt")
     
     current_longitude = float(f.readline())
     current_latitude = float(f.readline())
@@ -43,7 +45,7 @@ def route():
 
     subprocess.Popen(["python3", "simulator.py", '--clong', str(current_longitude), '--clat', str(current_latitude),
                                                  '--tlong', str(to_coords[0]), '--tlat', str(to_coords[1]),
-                                                 '--ip', myIP
+                                                 '--ip', myIP, '--battery', battery
                     ])
     
 
