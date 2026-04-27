@@ -20,7 +20,7 @@ def deltaLatLng(meters, angle, current):
 def run(ip, current_coords, to_coords, SERVER_URL):
     drone_coords = current_coords
     while (drone_coords[0] - to_coords[0])**2 + (drone_coords[1] - to_coords[1])**2 > 0.02:
-        angle = math.arctan((drone_coords[0] - to_coords[0]) / (drone_coords[1] - to_coords[1]))
+        angle = math.atan((drone_coords[0] - to_coords[0]) / (drone_coords[1] - to_coords[1]))
         meters = 1000
         d_long, d_lat = deltaLatLng(angle, meters, drone_coords)
         drone_coords = moveDrone(drone_coords, d_long, d_lat)

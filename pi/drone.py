@@ -26,7 +26,9 @@ def main():
     with open("coordinates.txt", "w") as f:
         print(str(coords[0]) + "\n" + str(coords[1]))
         f.write(str(coords[0]) + "\n" + str(coords[1]))
-    
+        
+    return 'OK'
+
 @app.route('/route', methods=['POST'])
 def route():
     to_coords = request.json
@@ -37,6 +39,7 @@ def route():
     current_latitude = float(f.readline())
     
     f.close()
+    print('Nu kör jag')
 
     subprocess.Popen(["python3", "simulator.py", '--clong', str(current_longitude), '--clat', str(current_latitude),
                                                  '--tlong', str(to_coords[0]), '--tlat', str(to_coords[1]),
@@ -48,7 +51,7 @@ def route():
 #    with requests.Session() as session:
 #        resp = session.post(SERVER, json=drone_info)
 
-#    return 'New route received'
+    return 'New route received'
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
