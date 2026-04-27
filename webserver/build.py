@@ -43,6 +43,10 @@ def map():
 def booking():
     return render_template('booking.html')
 
+@app.route('/booking2', methods=['GET'])
+def booking2():
+    return render_template('booking2.html')
+
 @app.route('/addDronePage', methods=['GET'])
 def addDronePage():
     return render_template('addDrone.html')
