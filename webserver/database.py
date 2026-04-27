@@ -15,8 +15,7 @@ redis_server = redis.Redis("localhost", decode_responses=True)
 @app.route('/drone', methods=['POST'])
 def drone():
     drone = request.get_json()
-    droneIP = request.remote_addr
-    droneID = drone['id']
+    droneIP = drone['ip']
     drone_longitude = drone['longitude']
     drone_latitude = drone['latitude']
     drone_status = drone['status']
@@ -31,7 +30,7 @@ def drone():
         'latitude': drone_latitude,
         'status': drone_status
     }
-    redis_server.set(droneID, json.dumps(data))
+    redis_server.set(droneIP, json.dumps(data))
      # =======================================================================================
     return 'Get data'
 

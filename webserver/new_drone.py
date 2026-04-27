@@ -15,7 +15,8 @@ def send_request(drone_url, coords):
         try:
             resp = session.post(drone_url, json=coords, timeout=timeout)
             return True
-        except:
+        except Exception as e:
+            print("ERROR:", e)
             return False
 
 @app.route('/new_drone', methods=['POST'])
