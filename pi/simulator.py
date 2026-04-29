@@ -1,6 +1,7 @@
 import math
 import requests
 import argparse
+import time
 
 def moveDrone(src, d_long, d_la):
     x, y = src
@@ -19,7 +20,7 @@ def delta(meters, angle, current, battery):
 
     return d_long, d_lat, battery
 
-def update_coords(ip, SERVER_URL, coords, battery):
+def update_coords(ip, SERVER_URL, coords, battery, status):
     with open("data.txt", "w") as f:
         print(str(coords[0]) + "\n" + str(coords[1]) + '\n' + str(battery))
         f.write(str(coords[0]) + "\n" + str(coords[1]) + '\n' + str(battery))
@@ -28,7 +29,7 @@ def update_coords(ip, SERVER_URL, coords, battery):
         drone_info = {'ip': ip,
                         'longitude': coords[0],
                         'latitude': coords[1],
-                        'status': 'busy',
+                        'status': status,
                         'battery': battery
                     }
         resp = session.post(SERVER_URL, json=drone_info)
@@ -40,25 +41,35 @@ def run(ip, current_coords, to_coords, battery, SERVER_URL):
         meters = 10
         d_long, d_lat, battery = delta(meters, angle, drone_coords, battery)
         drone_coords = moveDrone(drone_coords, d_long, d_lat)
-        update_coords(ip, SERVER_URL, drone_coords, battery)
-#        with requests.Session() as session:
-#            drone_info = {'ip': ip,
-#                          'longitude': drone_coords[0],
-#                          'latitude': drone_coords[1],
-#                          'status': 'busy',
-#                          'battery': battery
-#                        }
-#            resp = session.post(SERVER_URL, json=drone_info)
+        update_coords(ip, SERVER_URL, drone_coords, battery, 'busy')
     drone_coords = to_coords
-    update_coords(ip, SERVER_URL, drone_coords, battery)
-#    with requests.Session() as session:
-#        drone_info = {'ip': ip,
-#                        'longitude': drone_coords[0],
-#                        'latitude': drone_coords[1],
-#                        'status': 'idle',
-#                        'battery': battery
-#                    }
-#        resp = session.post(SERVER_URL, json=drone_info)
+    update_coords(ip, SERVER_URL, drone_coords, battery, 'loading')
+
+    while (battery <= 99):
+        battery += 1
+        time.sleep(0.2)
+        update_coords(ip, SERVER_URL, drone_coords, battery, 'loading')
+
+    f = open("base.txt")
+    
+    to_coords[0] = float(f.readline())
+    to_coords[1] = float(f.readline())
+    
+    f.close()
+
+    while math.sqrt((drone_coords[0] - to_coords[0])**2 + (drone_coords[1] - to_coords[1])**2) > 0.001:
+        angle = math.atan((drone_coords[0] - to_coords[0]) / (drone_coords[1] - to_coords[1]))
+        meters = 10
+        d_long, d_lat, battery = delta(meters, angle, drone_coords, battery)
+        drone_coords = moveDrone(drone_coords, d_long, d_lat)
+        update_coords(ip, SERVER_URL, drone_coords, battery, 'busy')
+    drone_coords = to_coords
+    update_coords(ip, SERVER_URL, drone_coords, battery, 'loading')
+
+    while (battery <= 99):
+        battery += 1
+        time.sleep(0.2)
+        update_coords(ip, SERVER_URL, drone_coords, battery, 'loading')
 
     return drone_coords[0], drone_coords[1], battery
    

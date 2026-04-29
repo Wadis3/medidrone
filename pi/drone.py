@@ -1,7 +1,6 @@
 from flask import Flask, request
 from flask_cors import CORS
 import subprocess
-import  requests
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -14,8 +13,11 @@ battery = 100.0
 def main():
     coords = request.json
 
-    with open("data.txt", "w") as f:
+    with open('data.txt', 'w') as f:
         print(str(coords[0]) + "\n" + str(coords[1]))
+        f.write(str(coords[0]) + "\n" + str(coords[1]))
+    
+    with open('base.txt', 'w') as f:
         f.write(str(coords[0]) + "\n" + str(coords[1]))
         
     return 'OK'
