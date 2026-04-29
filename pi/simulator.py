@@ -6,18 +6,19 @@ def moveDrone(src, d_long, d_la, battery):
     if(battery >= math.sqrt(d_long**2 + d_la**2)):
       x, y = src
       x = x + d_long
-      y = y + d_la    
+      y = y + d_la
       battery = battery - math.sqrt(d_long**2 + d_la**2)*0.001
       return (x, y), battery
 
-def deltaLatLng(meters, angle, current):
+def delta(meters, angle, current):
+    battery = battery - meters * 0.001
     y_meters = meters * math.sin(angle)
     x_meters = meters * math.cos(angle)
 
     d_long = (y_meters / 111111) * (-1 if y_meters < 0 else 1)
     d_lat = x_meters / (111111 * math.cos(d_long + current[0])) * (-1 if x_meters > 0 else 1)
 
-    return d_long, d_lat
+    return d_long, d_lat, battery
 
 def update_coords(ip, SERVER_URL, coords, battery):
     with open("data.txt", "w") as f:
@@ -38,8 +39,8 @@ def run(ip, current_coords, to_coords, battery, SERVER_URL):
     while math.sqrt((drone_coords[0] - to_coords[0])**2 + (drone_coords[1] - to_coords[1])**2) > 0.01:
         angle = math.atan((drone_coords[0] - to_coords[0]) / (drone_coords[1] - to_coords[1]))
         meters = 10
-        d_long, d_lat = deltaLatLng(meters, angle, drone_coords)
-        drone_coords, battery = moveDrone(drone_coords, d_long, d_lat, battery)
+        d_long, d_lat, battery = delta(meters, angle, drone_coords, battery)
+        drone_coords = moveDrone(drone_coords, d_long, d_lat)
         update_coords(ip, SERVER_URL, drone_coords, battery)
 #        with requests.Session() as session:
 #            drone_info = {'ip': ip,
