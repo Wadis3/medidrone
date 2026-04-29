@@ -52,18 +52,17 @@ def run(ip, current_coords, to_coords, battery, SERVER_URL):
 
     f = open("base.txt")
     
-    to_coords[0] = float(f.readline())
-    to_coords[1] = float(f.readline())
+    base_coords = (float(f.readline()), float(f.readline()))
     
     f.close()
 
-    while math.sqrt((drone_coords[0] - to_coords[0])**2 + (drone_coords[1] - to_coords[1])**2) > 0.001:
-        angle = math.atan((drone_coords[0] - to_coords[0]) / (drone_coords[1] - to_coords[1]))
+    while math.sqrt((drone_coords[0] - base_coords[0])**2 + (drone_coords[1] - base_coords[1])**2) > 0.001:
+        angle = math.atan((drone_coords[0] - base_coords[0]) / (drone_coords[1] - base_coords[1]))
         meters = 10
         d_long, d_lat, battery = delta(meters, angle, drone_coords, battery)
         drone_coords = moveDrone(drone_coords, d_long, d_lat)
         update_coords(ip, SERVER_URL, drone_coords, battery, 'busy')
-    drone_coords = to_coords
+    drone_coords = base_coords
     update_coords(ip, SERVER_URL, drone_coords, battery, 'loading')
 
     while (battery <= 99):
