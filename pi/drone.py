@@ -34,7 +34,7 @@ def route():
 
     subprocess.Popen(["python3", "simulator.py", '--clong', str(current_longitude), '--clat', str(current_latitude),
                                                  '--tlong', str(to_coords[0]), '--tlat', str(to_coords[1]),
-                                                 '--ip', myIP, '--battery', battery
+                                                 '--ip', myIP, '--battery', str(battery)
                     ])
     
     return 'New route received'
