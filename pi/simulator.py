@@ -21,8 +21,8 @@ def deltaLatLng(meters, angle, current):
 
 def update_coords(ip, SERVER_URL, coords, battery):
     with open("data.txt", "w") as f:
-        print(str(coords[0]) + "\n" + str(coords[1]))
-        f.write(str(coords[0]) + "\n" + str(coords[1]))
+        print(str(coords[0]) + "\n" + str(coords[1]) + '\n' + str(battery))
+        f.write(str(coords[0]) + "\n" + str(coords[1]) + '\n' + str(battery))
 
     with requests.Session() as session:
         drone_info = {'ip': ip,
@@ -35,7 +35,7 @@ def update_coords(ip, SERVER_URL, coords, battery):
 
 def run(ip, current_coords, to_coords, battery, SERVER_URL):
     drone_coords = current_coords
-    while math.sqrt((drone_coords[0] - to_coords[0])**2 + (drone_coords[1] - to_coords[1])**2) > 0.02:
+    while math.sqrt((drone_coords[0] - to_coords[0])**2 + (drone_coords[1] - to_coords[1])**2) > 0.01:
         angle = math.atan((drone_coords[0] - to_coords[0]) / (drone_coords[1] - to_coords[1]))
         meters = 10
         d_long, d_lat = deltaLatLng(meters, angle, drone_coords)
