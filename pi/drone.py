@@ -7,19 +7,8 @@ app = Flask(__name__)
 CORS(app, supports_credentials=True)
 app.secret_key = 'dljsaklqk24e21cjn!Ew@@dsa5'
 
-battery = 100.0
-
-#drone_info = {'id': myID,
- #               'longitude': current_longitude,
-  #              'latitude': current_latitude,
-   #             'status': 'idle'
-    #        }
-
-# Fill in the IP address of server, and send the initial location of the drone to the SERVER
-#===================================================================
-#===================================================================
-
 myIP = '192.168.0.3'
+battery = 100.0
 
 @app.route('/', methods=['POST']) #Körs i new_drone
 def main():
@@ -48,11 +37,6 @@ def route():
                                                  '--ip', myIP, '--battery', battery
                     ])
     
-
-#    SERVER="http://192.168.0.2:5001/drone"
-#    with requests.Session() as session:
-#        resp = session.post(SERVER, json=drone_info)
-
     return 'New route received'
 
 if __name__ == '__main__':

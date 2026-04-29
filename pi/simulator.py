@@ -11,7 +11,6 @@ def moveDrone(src, d_long, d_la, battery):
       return (x, y), battery
 
 def deltaLatLng(meters, angle, current):
-
     y_meters = meters * math.sin(angle)
     x_meters = meters * math.cos(angle)
 
@@ -20,6 +19,20 @@ def deltaLatLng(meters, angle, current):
 
     return d_long, d_lat
 
+def update_coords(ip, SERVER_URL, coords, battery):
+    with open("data.txt", "w") as f:
+        print(str(coords[0]) + "\n" + str(coords[1]))
+        f.write(str(coords[0]) + "\n" + str(coords[1]))
+
+    with requests.Session() as session:
+        drone_info = {'ip': ip,
+                        'longitude': coords[0],
+                        'latitude': coords[1],
+                        'status': 'busy',
+                        'battery': battery
+                    }
+        resp = session.post(SERVER_URL, json=drone_info)
+
 def run(ip, current_coords, to_coords, battery, SERVER_URL):
     drone_coords = current_coords
     while math.sqrt((drone_coords[0] - to_coords[0])**2 + (drone_coords[1] - to_coords[1])**2) > 0.02:
@@ -27,23 +40,25 @@ def run(ip, current_coords, to_coords, battery, SERVER_URL):
         meters = 10
         d_long, d_lat = deltaLatLng(meters, angle, drone_coords)
         drone_coords, battery = moveDrone(drone_coords, d_long, d_lat, battery)
-        with requests.Session() as session:
-            drone_info = {'ip': ip,
-                          'longitude': drone_coords[0],
-                          'latitude': drone_coords[1],
-                          'status': 'busy',
-                          'battery': battery
-                        }
-            resp = session.post(SERVER_URL, json=drone_info)
+        update_coords(ip, SERVER_URL, drone_coords, battery)
+#        with requests.Session() as session:
+#            drone_info = {'ip': ip,
+#                          'longitude': drone_coords[0],
+#                          'latitude': drone_coords[1],
+#                          'status': 'busy',
+#                          'battery': battery
+#                        }
+#            resp = session.post(SERVER_URL, json=drone_info)
     drone_coords = to_coords
-    with requests.Session() as session:
-        drone_info = {'ip': ip,
-                        'longitude': drone_coords[0],
-                        'latitude': drone_coords[1],
-                        'status': 'idle',
-                        'battery': battery
-                    }
-        resp = session.post(SERVER_URL, json=drone_info)
+    update_coords(ip, SERVER_URL, drone_coords, battery)
+#    with requests.Session() as session:
+#        drone_info = {'ip': ip,
+#                        'longitude': drone_coords[0],
+#                        'latitude': drone_coords[1],
+#                        'status': 'idle',
+#                        'battery': battery
+#                    }
+#        resp = session.post(SERVER_URL, json=drone_info)
 
     return drone_coords[0], drone_coords[1], battery
    

@@ -107,7 +107,8 @@
           var long = server_response[droneIP].longitude
           var lat = server_response[droneIP].latitude
           var status = server_response[droneIP].status
-          var battery = server_response[droneIP].battery
+          //var battery = server_response[droneIP].battery
+          var battery = 100;
           if (status == "idle") {
             drone_count += 1;
           }
