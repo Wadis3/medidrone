@@ -35,7 +35,7 @@ def update_coords(ip, SERVER_URL, coords, battery):
 
 def run(ip, current_coords, to_coords, battery, SERVER_URL):
     drone_coords = current_coords
-    while math.sqrt((drone_coords[0] - to_coords[0])**2 + (drone_coords[1] - to_coords[1])**2) > 0.01:
+    while math.sqrt((drone_coords[0] - to_coords[0])**2 + (drone_coords[1] - to_coords[1])**2) > 0.00001:
         angle = math.atan((drone_coords[0] - to_coords[0]) / (drone_coords[1] - to_coords[1]))
         meters = 10
         d_long, d_lat, battery = delta(meters, angle, drone_coords, battery)
