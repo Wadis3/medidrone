@@ -2,13 +2,12 @@ import math
 import requests
 import argparse
 
-def moveDrone(src, d_long, d_la, battery):
-    if(battery >= math.sqrt(d_long**2 + d_la**2)):
-      x, y = src
-      x = x + d_long
-      y = y + d_la
-      battery = battery - math.sqrt(d_long**2 + d_la**2)*0.001
-      return (x, y), battery
+def moveDrone(src, d_long, d_la):
+    x, y = src
+    x = x + d_long
+    y = y + d_la
+    
+    return (x, y)
 
 def delta(meters, angle, current, battery):
     battery = battery - meters * 0.001
