@@ -10,13 +10,13 @@ def moveDrone(src, d_long, d_la):
     
     return (x, y)
 
-def delta(meters, angle, current, battery):
+def delta(meters, angle, current, battery, direction):
     battery = battery - meters * 0.001
     y_meters = meters * math.sin(angle)
     x_meters = meters * math.cos(angle)
 
-    d_long = (y_meters / 111111) * (-1 if y_meters > 0 else 1)
-    d_lat = x_meters / (111111 * math.cos(d_long + current[0])) * (-1 if x_meters < 0 else 1)
+    d_long = (y_meters / 111111) * (-1 if direction[0] < 0 else 1)
+    d_lat = x_meters / (111111 * math.cos(d_long + current[0])) * (-1 if direction[1] > 0 else 1)
 
     return d_long, d_lat, battery
 
@@ -36,10 +36,12 @@ def update_coords(ip, SERVER_URL, coords, battery, status):
 
 def run(ip, current_coords, to_coords, battery, SERVER_URL):
     drone_coords = current_coords
+    direction = (drone_coords[0] - to_coords[0], drone_coords[1] - to_coords[1])
     while math.sqrt((drone_coords[0] - to_coords[0])**2 + (drone_coords[1] - to_coords[1])**2) > 0.001:
         angle = math.atan((drone_coords[0] - to_coords[0]) / (drone_coords[1] - to_coords[1]))
-        meters = 10
-        d_long, d_lat, battery = delta(meters, angle, drone_coords, battery)
+        print(angle)
+        meters = 20
+        d_long, d_lat, battery = delta(meters, angle, drone_coords, battery, direction)
         drone_coords = moveDrone(drone_coords, d_long, d_lat)
         update_coords(ip, SERVER_URL, drone_coords, battery, 'busy')
     drone_coords = to_coords
@@ -55,11 +57,14 @@ def run(ip, current_coords, to_coords, battery, SERVER_URL):
     base_coords = (float(f.readline()), float(f.readline()))
     
     f.close()
+    
+    direction = (drone_coords[0] - base_coords[0], drone_coords[1] - base_coords[1])
 
     while math.sqrt((drone_coords[0] - base_coords[0])**2 + (drone_coords[1] - base_coords[1])**2) > 0.001:
         angle = math.atan((drone_coords[0] - base_coords[0]) / (drone_coords[1] - base_coords[1]))
-        meters = 10
-        d_long, d_lat, battery = delta(meters, angle, drone_coords, battery)
+        print(angle)
+        meters = 20
+        d_long, d_lat, battery = delta(meters, angle, drone_coords, battery, direction)
         drone_coords = moveDrone(drone_coords, d_long, d_lat)
         update_coords(ip, SERVER_URL, drone_coords, battery, 'busy')
     drone_coords = base_coords
@@ -69,6 +74,7 @@ def run(ip, current_coords, to_coords, battery, SERVER_URL):
         battery += 1
         time.sleep(0.2)
         update_coords(ip, SERVER_URL, drone_coords, battery, 'loading')
+    update_coords(ip, SERVER_URL, drone_coords, battery, 'idle')
 
     return drone_coords[0], drone_coords[1], battery
    
@@ -89,7 +95,4 @@ if __name__ == "__main__":
 
     print(current_coords, to_coords)
     drone_long, drone_lat, final_battery = run(args.ip, current_coords, to_coords, args.battery, SERVER_URL)
-    with open("data.txt", "w") as f:
-        print(str(to_coords[0]) + "\n" + str(to_coords[1]) + "\n" + str(final_battery))
-        f.write(str(to_coords[0]) + "\n" + str(to_coords[1]) + "\n" + str(final_battery)) #har ej battery
     
