@@ -14,8 +14,8 @@ def deltaLatLng(meters, angle, current):
     y_meters = meters * math.sin(angle)
     x_meters = meters * math.cos(angle)
 
-    d_long = (y_meters / 111111) * (-1 if y_meters > 0 else 1)
-    d_lat = x_meters / (111111 * math.cos(d_long + current[0])) * (-1 if x_meters < 0 else 1)
+    d_long = (y_meters / 111111) * (-1 if y_meters < 0 else 1)
+    d_lat = x_meters / (111111 * math.cos(d_long + current[0])) * (-1 if x_meters > 0 else 1)
 
     return d_long, d_lat
 
