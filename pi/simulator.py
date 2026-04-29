@@ -14,8 +14,8 @@ def delta(meters, angle, current, battery):
     y_meters = meters * math.sin(angle)
     x_meters = meters * math.cos(angle)
 
-    d_long = (y_meters / 111111) * (-1 if y_meters < 0 else 1)
-    d_lat = x_meters / (111111 * math.cos(d_long + current[0])) * (-1 if x_meters > 0 else 1)
+    d_long = (y_meters / 111111) * -1
+    d_lat = x_meters / (111111 * math.cos(d_long + current[0])) * -1
 
     return d_long, d_lat, battery
 
@@ -35,7 +35,7 @@ def update_coords(ip, SERVER_URL, coords, battery):
 
 def run(ip, current_coords, to_coords, battery, SERVER_URL):
     drone_coords = current_coords
-    while math.sqrt((drone_coords[0] - to_coords[0])**2 + (drone_coords[1] - to_coords[1])**2) > 0.00001:
+    while math.sqrt((drone_coords[0] - to_coords[0])**2 + (drone_coords[1] - to_coords[1])**2) > 0.001:
         angle = math.atan((drone_coords[0] - to_coords[0]) / (drone_coords[1] - to_coords[1]))
         meters = 10
         d_long, d_lat, battery = delta(meters, angle, drone_coords, battery)
