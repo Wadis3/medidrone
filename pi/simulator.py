@@ -2,6 +2,9 @@ import math
 import requests
 import argparse
 import time
+import redis
+
+redis_server = redis.Redis('localhost', decode_responses=True)
 
 def moveDrone(src, d_long, d_la):
     x, y = src
@@ -21,9 +24,12 @@ def delta(meters, angle, current, battery, direction):
     return d_long, d_lat, battery
 
 def update_coords(ip, SERVER_URL, coords, battery, status):
-    with open("data.txt", "w") as f:
-        print(str(coords[0]) + "\n" + str(coords[1]) + '\n' + str(battery))
-        f.write(str(coords[0]) + "\n" + str(coords[1]) + '\n' + str(battery))
+    redis_server.set('longitude', coords[0])
+    redis_server.set('latitude', coords[1])
+    redis_server.set('battery', battery)
+#    with open("data.txt", "w") as f:
+#        print(str(coords[0]) + "\n" + str(coords[1]) + '\n' + str(battery))
+#        f.write(str(coords[0]) + "\n" + str(coords[1]) + '\n' + str(battery))
 
     with requests.Session() as session:
         drone_info = {'ip': ip,
@@ -52,11 +58,13 @@ def run(ip, current_coords, to_coords, battery, SERVER_URL):
         time.sleep(0.2)
         update_coords(ip, SERVER_URL, drone_coords, battery, 'loading')
 
-    f = open("base.txt")
-    
-    base_coords = (float(f.readline()), float(f.readline()))
-    
-    f.close()
+    base_coords = (redis_server.get('base_long'), redis_server.get('base_lat'))
+
+#    f = open("base.txt")
+#    
+#    base_coords = (float(f.readline()), float(f.readline()))
+#    
+#    f.close()
     
     direction = (drone_coords[0] - base_coords[0], drone_coords[1] - base_coords[1])
 
