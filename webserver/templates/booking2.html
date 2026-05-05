@@ -15,7 +15,7 @@
     .container {
       max-width: 640px;
       margin: 0 auto;
-      background: #fff;
+      background: hsl(0, 0%, 100%);
       padding: 28px;
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
@@ -137,39 +137,11 @@
     <form id="bookingForm">
 
       <fieldset>
-        <legend>Avsändare</legend>
-        <div class="radio-group">
-          <label><input type="radio" name="senderType" value="hospital" checked> Sjukhus</label>
-          <label><input type="radio" name="senderType" value="critical"> Kritisk plats</label>
-        </div>
-      </fieldset>
-
-      <fieldset>
-        <legend>Koordinater</legend>
-        <div class="row">
-          <div>
-            <label>Latitud</label>
-            <input type="number" step="any" id="lat" placeholder="t.ex. 50.130673" required>
-          </div>
-          <div>
-            <label>Longitud</label>
-            <input type="number" step="any" id="lng" placeholder="t.ex. 36.224064" required>
-          </div>
-        </div>
-      </fieldset>
-
-      <fieldset>
         <legend>Order</legend>
-        //blod 
-
-        <div class="item" data-item="blood">
-          <label class="item-header">
-            <input type="checkbox" data-toggle>
-            <span>Blod</span>
-          </label>
+        <details></details>
+          <summary>Blod</summary>
           <div class="item-options">
-            <div class="field">
-              <label>Blodtyp</label>
+            <label>Blodtyp</label>
               <select>
                 <option value="O-">O-</option>
                 <option value="O+">O+</option>
@@ -187,7 +159,8 @@
             </div>
           </div>
         </div>
-
+      <details>
+    <fieldset></fieldset>
         <div class="item" data-item="plasma">
           <label class="item-header">
             <input type="checkbox" data-toggle>
@@ -224,3 +197,7 @@
     </form>
   </div>
 </body>
+
+
+
+
