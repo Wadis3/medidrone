@@ -74,9 +74,9 @@ def login():
         user = request.form.get('username')
         pw = request.form.get('password')
         
-        user = json.loads(redis_server.get(user))
+        user_data = json.loads(redis_server.get(user))
 
-        if user is not None and user['password'] == pw:
+        if user_data is not None and user_data['password'] == pw:
             session['user'] = user
             return redirect(url_for('map'))
         
