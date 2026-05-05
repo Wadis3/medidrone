@@ -58,7 +58,7 @@ def run(ip, current_coords, to_coords, battery, SERVER_URL):
         time.sleep(0.2)
         update_coords(ip, SERVER_URL, drone_coords, battery, 'loading')
 
-    base_coords = (redis_server.get('base_long'), redis_server.get('base_lat'))
+    base_coords = (float(redis_server.get('base_long')), float(redis_server.get('base_lat')))
 
 #    f = open("base.txt")
 #    
