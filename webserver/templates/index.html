@@ -88,7 +88,7 @@
           droneMarkers[droneIP] = L.marker([long, lat], {icon: drone}).addTo(map);
         }
         droneMarkers[droneIP].bindPopup(
-              "<b>IP: "+droneIP + "<br>Battery: "+ battery +"%</b>"
+              "<b>IP: "+droneIP + "<br>Battery: "+ battery +"%<br>Status: " + status + "<b>"
             )
       })
     }

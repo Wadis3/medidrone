@@ -32,6 +32,7 @@ def route_planner():
         drone = json.loads(redis_server.get(ip))
         if drone['status'] == 'idle':
             send_request('http://' + ip + ':5000/route', [50.361825, 35.915570])
+            break
     #print(drone_dict)
     
     return 'weee'
