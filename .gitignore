@@ -1,2 +1,33 @@
-__pycache__
+# Python
+__pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtuell miljö
+venv/
+.venv/
+env/
+
+# Miljövariabler (känslig info!)
+.env
+*.env
+
+# Redis
+dump.rdb
+
+# OS-filer
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Loggar
+*.log
