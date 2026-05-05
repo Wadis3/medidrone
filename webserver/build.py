@@ -1,9 +1,8 @@
 from os import fdopen
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for, session
 from flask.json import jsonify
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
-import time
 import redis
 import json
 import math
@@ -37,14 +36,67 @@ def delta_coords(meters, angle, current):
 
 @app.route('/', methods=['GET'])
 def map():
+    user = session.get('user')
+    if not user:
+        return redirect(url_for('login'))
     return render_template('index.html')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    user = session.get('user')
+    
+    if not user or user != 'admin':
+        return redirect(url_for('login'))
+    
+    if request.method == 'POST':
+        user = request.form.get('username')
+
+        if user == 'admin':
+            return render_template('register.html', error="Fel användarnamn eller lösenord")
+
+        pw = request.form.get('password')
+        long = request.form.get('longitude')
+        lat = request.form.get('latitude')
+
+        redis_server.set(user, json.dumps({
+            'password': pw,
+            'longitude': long,
+            'latitude': lat
+        }))
+        
+        return redirect(url_for('map'))
+
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        user = request.form.get('username')
+        pw = request.form.get('password')
+        
+        user = json.loads(redis_server.get(user))
+
+        if user is not None and user['password'] == pw:
+            session['user'] = user
+            return redirect(url_for('map'))
+        
+        session.pop('user', None)
+        return render_template('login.html', error="Fel användarnamn eller lösenord")
+    
+    return render_template('login.html')
 
 @app.route('/booking', methods=['GET'])
 def booking():
+    user = session.get('user')
+    if not user or user == 'admin':
+        return redirect(url_for('login'))
     return render_template('booking.html')
 
 @app.route('/addDronePage', methods=['GET'])
 def addDronePage():
+    user = session.get('user')
+    if not user or user != 'admin':
+        return redirect(url_for('login'))
     return render_template('addDrone.html')
 
 @app.route('/get_drones', methods=['GET'])

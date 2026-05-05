@@ -21,7 +21,7 @@
                 }
                 }
             };
-            xhttp.open("POST", "http://127.0.0.1:5003/new_drone", true);
+            xhttp.open("POST", "http://192.168.0.2:5003/new_drone", true);
             xhttp.setRequestHeader("Content-Type", "application/json");
             xhttp.send(JSON.stringify(ip_address));
             console.log("hej2");

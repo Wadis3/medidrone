@@ -98,7 +98,7 @@
     var set_delay = 50,
     callout = function () {
       $.ajax({
-        url: 'http://127.0.0.1:5000/get_drones'
+        url: 'http://192.168.0.2:5000/get_drones'
       })
       .done(function (server_response) {
         drone_count = 0;
