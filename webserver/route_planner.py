@@ -1,5 +1,5 @@
 from cmath import pi
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, session
 from flask.globals import current_app 
 from geopy.geocoders import Nominatim
 from flask_cors import CORS
@@ -28,10 +28,15 @@ def send_request(drone_url, coords):
 def route_planner():
     ips = redis_server.smembers('ips')
 
+    user = request.json.get('user')
+    user_data = json.loads(redis_server.get(user))
+    long = float(user_data['longitude'])
+    lat =  float(user_data['latitude'])
+
     for ip in ips:
         drone = json.loads(redis_server.get(ip))
         if drone['status'] == 'idle':
-            send_request('http://' + ip + ':5000/route', [50.361825, 35.915570])
+            send_request('http://' + ip + ':5000/route', [long, lat])
             break
     #print(drone_dict)
     

@@ -39,7 +39,7 @@ def map():
     user = session.get('user')
     if not user:
         return redirect(url_for('login'))
-    return render_template('index.html')
+    return render_template('index.html', user = user)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -58,6 +58,8 @@ def register():
         long = request.form.get('longitude')
         lat = request.form.get('latitude')
 
+        redis_server.sadd('users', user)
+        
         redis_server.set(user, json.dumps({
             'password': pw,
             'longitude': long,
@@ -90,7 +92,7 @@ def booking():
     user = session.get('user')
     if not user or user == 'admin':
         return redirect(url_for('login'))
-    return render_template('booking.html')
+    return render_template('booking.html', user=user)
 
 @app.route('/addDronePage', methods=['GET'])
 def addDronePage():
@@ -101,15 +103,6 @@ def addDronePage():
 
 @app.route('/get_drones', methods=['GET'])
 def get_drones():
-    #=============================================================================================================================================
-    # Get the information of all the drones from redis server and update the dictionary `drone_dict' to create the response 
-    # drone_dict should have the following format:
-    # e.g if there are two drones in the system with IDs: DRONE1 and DRONE2
-    # drone_dict = {'DRONE_1':{'longitude': drone1_logitude_svg, 'latitude': drone1_logitude_svg, 'status': drone1_status},
-    #               'DRONE_2': {'longitude': drone2_logitude_svg, 'latitude': drone2_logitude_svg, 'status': drone2_status}
-    #              }
-    # use function translate() to covert the coodirnates to svg coordinates
-    #=============================================================================================================================================
     ips = redis_server.smembers('ips')
     drone_dict = {}
     for ip in ips:
@@ -119,10 +112,23 @@ def get_drones():
                 'latitude': drone['latitude'],
                 'status': drone['status'],
                 'battery': drone['battery']
-                }
+        }
     #print(drone_dict)
     
     return jsonify(drone_dict)
+
+@app.route('/get_field', methods=['GET'])
+def get_field():
+    users = redis_server.smembers('users')
+    field_dict = {}
+    for user in users:
+        user_data = json.loads(redis_server.get(user))
+        field_dict[user] = {
+            'longitude': user_data['longitude'],
+            'latitude': user_data['latitude']
+        }
+    
+    return jsonify(field_dict)
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port='5000')
