@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <title>Medicinskt lager</title>
+    <style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 60%;
+  margin:20%;
+  margin-top:10%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+</style>
+<script type="text/javascript">
+ const table = document.getElementById("storageTable");
+
+ var set_delay = 50,
+    callout = function () {
+      $.ajax({
+        url: 'http://127.0.0.1:5000/get_Storage'
+      })
+      .done(function (server_response) {
+        table.innerHTML = 
+        "<tr>"+
+            "<th>Location</th>"+
+            "<th>Product</th>"+
+            "<th>Available amount</th>"+
+        "</tr>";
+        var locations = Object.keys(server_response) //server_response = storage_dict
+        for (var location of locations){
+            var products = Object.keys(server_response[location])
+            for(var product of products){
+                var amount = server_response[location][product]
+                const row = table.insertRow();
+                const locationCell = row.insertCell(0);
+                const productCell = row.insertCell(1);
+                const amountCell = row.insertCell(2);
+
+                locationCell.textContent = location;
+                productCell.textContent = product;
+                amountCell.textContent = amount;
+            }
+        }
+    })
+    .always(function (server_response) {
+        setTimeout(callout, set_delay);
+      });
+    };
+    callout();
+
+</script>
+</head>
+<body>
+<table id = "storageTable">
+    <tr>
+        <th>Location</th>
+        <th>Product</th>
+        <th>Available amount</th>
+    </tr>
+</table>
+</body>
+</html>
