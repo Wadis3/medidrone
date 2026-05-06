@@ -85,7 +85,7 @@
     button.submit {
       width: 100%;
       padding: 14px;
-      background: #c0392b;
+      background: #3d4ece;
       color: white;
       border: none;
       border-radius: 6px;
@@ -137,11 +137,16 @@
     <form id="bookingForm">
 
       <fieldset>
-        <legend>Order</legend>
-        <details></details>
-          <summary>Blod</summary>
+        <legend>Blod</legend>
           <div class="item-options">
             <label>Blodtyp</label>
+            </div>
+            <div class="field">
+              <label>Antal liter</label>
+              <input type="number" min="1" value="1">
+            </div>
+            <div class="field">
+              <label>Blodtyp</label>
               <select>
                 <option value="O-">O-</option>
                 <option value="O+">O+</option>
@@ -152,39 +157,21 @@
                 <option value="AB-">AB-</option>
                 <option value="AB+">AB+</option>
               </select>
-            </div>
+          </div>
+      </fieldset>
+        <fieldset>
+          <legend>Plasma</legend>
             <div class="field">
-              <label>Antal enheter</label>
+              <label>Antal liter</label>
               <input type="number" min="1" value="1">
             </div>
-          </div>
-        </div>
-      <details>
-    <fieldset></fieldset>
-        <div class="item" data-item="plasma">
-          <label class="item-header">
-            <input type="checkbox" data-toggle>
-            <span>Plasma</span>
-          </label>
-          <div class="item-options">
-            <div class="field">
-              <label>Antal enheter</label>
-              <input type="number" min="1" value="1">
-            </div>
-          </div>
-        </div>
-
-        <div class="item" data-item="bandages">
-          <label class="item-header">
-            <input type="checkbox" data-toggle>
-            <span>Förband / kompresser</span>
-          </label>
-          <div class="item-options">
+        </fieldset>
+          <legend>Förband</legend>
             <div class="field">
               <label>Storlek</label>
-              <select>
+              <select name="bandage_size">
                 <option value="S">Liten</option>
-                <option value="M" selected>Medium</option>
+                <option value="M">Medium</option>
                 <option value="L">Stor</option>
               </select>
             </div>
@@ -193,10 +180,9 @@
               <input type="number" min="1" value="5">
             </div>
           </div>
-        </div>
-    </form>
-  </div>
-</body>
+        </fieldset>
+      <button type="submit" class="submit">Skicka beställning</button>
+      </form>
 
 
 
