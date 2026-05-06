@@ -30,7 +30,7 @@ def update_coords(ip, SERVER_URL, coords, battery, status):
 #    with open("data.txt", "w") as f:
 #        print(str(coords[0]) + "\n" + str(coords[1]) + '\n' + str(battery))
 #        f.write(str(coords[0]) + "\n" + str(coords[1]) + '\n' + str(battery))
-
+    # detta är ett test
     with requests.Session() as session:
         drone_info = {'ip': ip,
                         'longitude': coords[0],
