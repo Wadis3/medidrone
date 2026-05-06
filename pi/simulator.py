@@ -13,13 +13,13 @@ def moveDrone(src, d_long, d_la):
     
     return (x, y)
 
-def delta(meters, angle, current, battery, direction):
+def delta(meters, angle, current, battery):
     battery = battery - meters * 0.001
     y_meters = meters * math.sin(angle)
     x_meters = meters * math.cos(angle)
 
-    d_long = (y_meters / 111111) * (-1 if direction[0] < 0 else 1)
-    d_lat = x_meters / (111111 * math.cos(d_long + current[0])) * (-1 if direction[1] > 0 else 1)
+    d_long = (y_meters / 111111) * -1#* (-1 if direction[0] < 0 else 1)
+    d_lat = x_meters / (111111 * math.cos(d_long + current[0])) * -1#* (-1 if direction[1] > 0 else 1)
 
     return d_long, d_lat, battery
 
@@ -42,12 +42,12 @@ def update_coords(ip, SERVER_URL, coords, battery, status):
 
 def run(ip, current_coords, to_coords, battery, SERVER_URL):
     drone_coords = current_coords
-    direction = (drone_coords[0] - to_coords[0], drone_coords[1] - to_coords[1])
+    #direction = (drone_coords[0] - to_coords[0], drone_coords[1] - to_coords[1])
     while math.sqrt((drone_coords[0] - to_coords[0])**2 + (drone_coords[1] - to_coords[1])**2) > 0.001:
-        angle = math.atan((drone_coords[0] - to_coords[0]) / (drone_coords[1] - to_coords[1]))
+        angle = math.atan2((drone_coords[0] - to_coords[0]), (drone_coords[1] - to_coords[1]))
         print(angle)
-        meters = 20
-        d_long, d_lat, battery = delta(meters, angle, drone_coords, battery, direction)
+        meters = 30
+        d_long, d_lat, battery = delta(meters, angle, drone_coords, battery)
         drone_coords = moveDrone(drone_coords, d_long, d_lat)
         update_coords(ip, SERVER_URL, drone_coords, battery, 'busy')
     drone_coords = to_coords
@@ -66,13 +66,13 @@ def run(ip, current_coords, to_coords, battery, SERVER_URL):
 #    
 #    f.close()
     
-    direction = (drone_coords[0] - base_coords[0], drone_coords[1] - base_coords[1])
+    #direction = (drone_coords[0] - base_coords[0], drone_coords[1] - base_coords[1])
 
     while math.sqrt((drone_coords[0] - base_coords[0])**2 + (drone_coords[1] - base_coords[1])**2) > 0.001:
-        angle = math.atan((drone_coords[0] - base_coords[0]) / (drone_coords[1] - base_coords[1]))
+        angle = math.atan2((drone_coords[0] - base_coords[0]), (drone_coords[1] - base_coords[1]))
         print(angle)
-        meters = 20
-        d_long, d_lat, battery = delta(meters, angle, drone_coords, battery, direction)
+        meters = 30
+        d_long, d_lat, battery = delta(meters, angle, drone_coords, battery)
         drone_coords = moveDrone(drone_coords, d_long, d_lat)
         update_coords(ip, SERVER_URL, drone_coords, battery, 'busy')
     drone_coords = base_coords
