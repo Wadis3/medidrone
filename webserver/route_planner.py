@@ -16,9 +16,6 @@ app.secret_key = 'dljsaklqk24e21cjn!Ew@@dsa5'
 redis_server = redis.Redis("localhost", decode_responses=True)
 # ===============================================
 
-geolocator = Nominatim(user_agent="my_request")
-region = ", Lund, Skåne, Sweden"
-
 # Example to send coords as request to the drone
 def send_request(drone_url, coords):
     with requests.Session() as session:
