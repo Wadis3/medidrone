@@ -43,3 +43,6 @@ def newDrone():
     return 'Could not find drone with ip: ' + drone_ip
     #DRONE_URL = 'http://' + drone_ip + ':5001'
     #send_request(DRONE_URL, (coords['longitude'], coords['latitude']))
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port='5003')

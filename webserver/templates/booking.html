@@ -21,7 +21,7 @@
         }
         }
       };
-      xhttp.open("POST", "http://192.168.0.2:5004/planner", true);
+      xhttp.open("POST", "http://192.168.0.2:5004/new_request", true);
       xhttp.setRequestHeader("Content-Type", "application/json");
       xhttp.send(JSON.stringify({ user: "{{ user }}" }));  
 
