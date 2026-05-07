@@ -41,7 +41,11 @@
 </head>
 
 <body>
+  <p>Hi {{ user }}</p>
+  <a href="/login">Login</a>
+  <br>
   <a href="/addDronePage">Add a new drone</a>
+  <br>
   <a href="/booking">Book supplies</a>
 
   <div id="map" style="height: 720px; width: 1200px;"></div>
@@ -58,14 +62,34 @@
     var hospitalMarker = L.marker([49.97425, 36.1960665], {icon: hospital}).addTo(map);
     var droneMarkers = {};
     var drone_count = 0;    
-    var fieldMarker = L.marker([50.361825, 35.915570], {icon: field}).addTo(map);
-    var fieldMarker2 = L.marker([50.286543, 36.941948], {icon: field}).addTo(map);
+    var fieldMarkers = {};
+    //var fieldMarker = L.marker([50.361825, 35.915570], {icon: field}).addTo(map);
+    //var fieldMarker2 = L.marker([50.286543, 36.941948], {icon: field}).addTo(map);
     
     //setLatLng(<LatLng> latlng);
       
     hospitalMarker.bindPopup("<b>Charkiv hospital</b>");
-    fieldMarker.bindPopup("<b>Field hospital</b>");
-    fieldMarker2.bindPopup("<b>Field hospital</b>");
+    //fieldMarker.bindPopup("<b>Field hospital</b>");
+    //fieldMarker2.bindPopup("<b>Field hospital</b>");
+
+    loadField = function () {
+      $.ajax({
+        url: 'http://192.168.0.2:5000/get_field'
+      })
+      .done(function (server_response) {
+        var all_field = Object.keys(server_response);
+        console.log(server_response)
+        for (const user of all_field) {
+          var long = server_response[user].longitude;
+          var lat = server_response[user].latitude;
+
+          console.log(user);
+          fieldMarkers[user] = L.marker([long, lat], {icon: field}).addTo(map);
+          fieldMarkers[user].bindPopup("<b>"+user+"</b>");
+        }
+      });
+    };
+    loadField();
     
     var circle = L.circle([49.97425, 36.1960665], {
       color: 'red',
@@ -81,9 +105,7 @@
       $( doc ).ready(function() {
         //console.log(droneIP);
         if (droneIP in droneMarkers) {
-          if (status != "idle") {
-            droneMarkers[droneIP].setLatLng(L.latLng(parseFloat(long), parseFloat(lat)));
-          } 
+          droneMarkers[droneIP].setLatLng(L.latLng(parseFloat(long), parseFloat(lat)));
         } else {
           droneMarkers[droneIP] = L.marker([long, lat], {icon: drone}).addTo(map);
         }
@@ -98,21 +120,21 @@
     var set_delay = 50,
     callout = function () {
       $.ajax({
-        url: 'http://127.0.0.1:5000/get_drones'
+        url: 'http://192.168.0.2:5000/get_drones'
       })
       .done(function (server_response) {
         drone_count = 0;
-        var available_drones = Object.keys(server_response)
+        var available_drones = Object.keys(server_response);
         for (const droneIP of available_drones){
-          var long = server_response[droneIP].longitude
-          var lat = server_response[droneIP].latitude
-          var status = server_response[droneIP].status
-          var battery = parseInt(server_response[droneIP].battery)
+          var long = server_response[droneIP].longitude;
+          var lat = server_response[droneIP].latitude;
+          var status = server_response[droneIP].status;
+          var battery = parseInt(server_response[droneIP].battery);
           if (status == "idle") {
             drone_count += 1;
           }
-          console.log(droneIP)
-          LoadDrone(droneIP, long, lat, status, battery)
+          //console.log(droneIP);
+          LoadDrone(droneIP, long, lat, status, battery);
         }
         document.getElementById("text").innerHTML = "<h2>Available drones: " + drone_count + "</h2>";
       })
@@ -122,7 +144,5 @@
     };
     callout();
   </script>
-
-
 </body>
 </html>

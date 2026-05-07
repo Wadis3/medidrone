@@ -21,10 +21,10 @@
         }
         }
       };
-      xhttp.open("POST", "http://127.0.0.1:5004/planner", true);
+      xhttp.open("POST", "http://192.168.0.2:5004/planner", true);
       xhttp.setRequestHeader("Content-Type", "application/json");
-      xhttp.send(JSON.stringify("test"));
-      console.log("hej2");
+      xhttp.send(JSON.stringify({ user: "{{ user }}" }));  
+
     }
 </script>
 </head>
