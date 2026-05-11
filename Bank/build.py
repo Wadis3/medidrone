@@ -10,9 +10,25 @@ CORS(app)
 
 redis_server = redis.Redis("localhost", decode_responses=True)
 
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['GET']) 
 def bank():
     return render_template('bank.html')
+
+@app.route('/update_Storage', methods=['POST']) #Skicka med location, product, new amount
+def update_storage():
+    update = request.json
+    location = update[0]
+    product = update[1]
+    amount = update[2]
+
+    products = json.loads(redis_server.get(location))
+    products[product] = amount
+
+
+    redis_server.sadd('locations', location)
+    redis_server.set(location, json.dumps(products))
+
+
 
 @app.route('/get_Storage', methods=['GET'])
 def get_Storage():
@@ -27,27 +43,6 @@ def get_Storage():
             
     return jsonify(storage_dict)
 
-    # storage = {
-    # location = {
-    # bandage = 10
-    # blood = 5
-    #}
-    #}
-    #
-    #
-
-
-#ips = redis_server.smembers('ips')
-#    drone_dict = {}
-#    for ip in ips:
-#        drone = json.loads(redis_server.get(ip))
-#        drone_dict[ip] = {
-#                'longitude': drone['longitude'],
-#                'latitude': drone['latitude'],
-#               'status': drone['status'],
-#               'battery': drone['battery']
-#               }
-#   return jsonify(drone_dict)
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port='5000')
