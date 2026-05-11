@@ -1,0 +1,13 @@
+Förfrågan
+1. Användare skickar request
+2. Användare sparas i lista
+3. Användare får en kö-plats
+
+Route_planner:
+1. Kollar första pos
+2. Kollar lediga drönare
+3. Kollar lager (om inte tillräckligt, nästa drönare)
+4. Skicka drönare
+
+Redis:
+- Lista med 

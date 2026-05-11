@@ -4,6 +4,11 @@
 </head>
 <body>
     <a href="/">Map</a>
+    
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+
     <form method="POST">
         <label for="username">Username:</label><br>
         <input type="text" name="username" placeholder="Username"><br>

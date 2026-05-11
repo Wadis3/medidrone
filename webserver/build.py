@@ -38,6 +38,7 @@ def delta_coords(meters, angle, current):
 def map():
     user = session.get('user')
     if not user:
+        session['error'] = 'Need to login to view map'
         return redirect(url_for('login'))
     return render_template('index.html', user = user)
 
@@ -46,7 +47,8 @@ def register():
     user = session.get('user')
     
     if not user or user != 'admin':
-        return redirect(url_for('login'))
+        session['error'] = "Admin-access krävs för registrering"
+        return redirect(url_for('login')) 
     
     if request.method == 'POST':
         user = request.form.get('username')
@@ -72,25 +74,26 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    error = session.pop('error', None)  # Flyttad hit, läses vid både GET och POST
     if request.method == 'POST':
         user = request.form.get('username')
         pw = request.form.get('password')
-        
-        user_data = json.loads(redis_server.get(user))
-
-        if user_data is not None and user_data['password'] == pw:
-            session['user'] = user
-            return redirect(url_for('map'))
-        
+        user_data = redis_server.get(user)
+        if user_data is not None:
+            user_data = json.loads(user_data)  # Parsa JSON här
+            if user_data['password'] == pw:
+                session['user'] = user
+                return redirect(url_for('map'))
         session.pop('user', None)
         return render_template('login.html', error="Fel användarnamn eller lösenord")
     
-    return render_template('login.html')
+    return render_template('login.html', error=error)
 
 @app.route('/booking', methods=['GET'])
 def booking():
     user = session.get('user')
     if not user or user == 'admin':
+        session['error'] = 'Only common users can book supplies'
         return redirect(url_for('login'))
     return render_template('booking.html', user=user)
 
@@ -98,6 +101,7 @@ def booking():
 def addDronePage():
     user = session.get('user')
     if not user or user != 'admin':
+        session['error'] = 'Admin-access required'
         return redirect(url_for('login'))
     return render_template('addDrone.html')
 

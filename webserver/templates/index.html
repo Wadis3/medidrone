@@ -139,21 +139,29 @@
           LoadDrone(droneIP, long, lat, status, battery);
         }
         document.getElementById("text").innerHTML = "<h2>Available drones: " + drone_count + "</h2>";
-      })
-      .ajax({
+      });
+      
+      $.ajax({
         url: 'http://192.168.0.2:5000/get_requests'
       })
       .done(function (server_response) {
-        var table = document.getElementById("requests");
-        var requests = server_response;
-        for (const request in requests) {
-          var row = table.insertRow();
-          row.insertCell(0).textContent = request;
-        }
-      })
-      .always(function (server_response) {
-        setTimeout(callout, set_delay);
+          var table = document.getElementById("requests");
+          table.innerHTML = "";
+          var row = table.insertRow()
+          row.insertCell(0).textContent = "user";
+          row.insertCell(1).textContent = "longitude";
+          row.insertCell(2).textContent = "latitude";
+          for (const request of server_response) {
+              var item = JSON.parse(request)
+              var row = table.insertRow();
+              row.insertCell(0).textContent = item.user;
+              row.insertCell(1).textContent = item.longitude;
+              row.insertCell(2).textContent = item.latitude;
+          }
       });
+      
+      setTimeout(callout, set_delay);
+        
     };
     callout();
   </script>
