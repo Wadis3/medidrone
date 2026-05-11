@@ -51,6 +51,9 @@
   <div id="map" style="height: 720px; width: 1200px;"></div>
 
   <div id="text"></div>
+
+  <table id="requests"></table>
+
   <script>
     var map = L.map('map').setView([50.130673, 36.224064], 9);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -78,7 +81,6 @@
       })
       .done(function (server_response) {
         var all_field = Object.keys(server_response);
-        console.log(server_response)
         for (const user of all_field) {
           var long = server_response[user].longitude;
           var lat = server_response[user].latitude;
@@ -137,6 +139,17 @@
           LoadDrone(droneIP, long, lat, status, battery);
         }
         document.getElementById("text").innerHTML = "<h2>Available drones: " + drone_count + "</h2>";
+      })
+      .ajax({
+        url: 'http://192.168.0.2:5000/get_requests'
+      })
+      .done(function (server_response) {
+        var table = document.getElementById("requests");
+        var requests = server_response;
+        for (const request in requests) {
+          var row = table.insertRow();
+          row.insertCell(0).textContent = request;
+        }
       })
       .always(function (server_response) {
         setTimeout(callout, set_delay);

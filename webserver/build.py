@@ -130,5 +130,10 @@ def get_field():
     
     return jsonify(field_dict)
 
+@app.route('/get_requests', methods=['GET'])
+def get_requests():
+    requests = redis_server.lrange('requests', 0, -1)
+    return jsonify(requests)
+
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port='5000')

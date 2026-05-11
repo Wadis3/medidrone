@@ -6,6 +6,7 @@ from flask_cors import CORS
 import redis
 import json
 import requests
+import time
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -21,24 +22,32 @@ def send_request(drone_url, coords):
     with requests.Session() as session:
         resp = session.post(drone_url, json=coords)
 
-@app.route('/planner', methods=['POST'])
 def route_planner():
-    ips = redis_server.smembers('ips')
+    pending_requests = redis_server.lrange('requests', 0, -1)
 
-    user = request.json.get('user')
-    user_data = json.loads(redis_server.get(user))
-    long = float(user_data['longitude'])
-    lat =  float(user_data['latitude'])
+    if len(pending_requests) == 0:
+        return 'no requests'
+    
+    first_request = json.loads(pending_requests[0])
+
+    user = first_request['user']
+    long = first_request['longitude']
+    lat =  first_request['latitude']
+
+    ips = redis_server.smembers('ips')
+    
+    time.sleep(2)
 
     for ip in ips:
         drone = json.loads(redis_server.get(ip))
         if drone['status'] == 'idle':
             send_request('http://' + ip + ':5000/route', [long, lat])
-            break
-    #print(drone_dict)
-    
-    return 'weee'
-
+            redis_server.lpop('requests')
+            return 'Drone ' + ip + ' is delivering to ' + user
+    return 'no available drones'
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port='5002')
+    while True:
+        response = route_planner()
+        if response != 'no requests':
+            print(response)
