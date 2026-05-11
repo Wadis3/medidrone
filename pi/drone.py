@@ -9,7 +9,7 @@ app = Flask(__name__)
 CORS(app, supports_credentials=True)
 app.secret_key = 'dljsaklqk24e21cjn!Ew@@dsa5'
 
-myIP = '192.168.0.3'
+myIP = '192.168.0.5'
 battery = 100.0
 
 @app.route('/', methods=['POST']) #Körs i new_drone
