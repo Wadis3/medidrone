@@ -57,6 +57,8 @@ def run(ip, current_coords, to_coords, battery, SERVER_URL):
         battery += 1
         time.sleep(0.2)
         update_coords(ip, SERVER_URL, drone_coords, battery, 'loading')
+    battery = 100
+    update_coords(ip, SERVER_URL, drone_coords, battery, 'loading')
 
     base_coords = (float(redis_server.get('base_long')), float(redis_server.get('base_lat')))
 
@@ -82,6 +84,7 @@ def run(ip, current_coords, to_coords, battery, SERVER_URL):
         battery += 1
         time.sleep(0.2)
         update_coords(ip, SERVER_URL, drone_coords, battery, 'loading')
+    battery = 100
     update_coords(ip, SERVER_URL, drone_coords, battery, 'idle')
 
     return drone_coords[0], drone_coords[1], battery

@@ -5,6 +5,10 @@
 <body>
     <a href="/">Map</a><br>
     <a href="/register">Register new account</a>
+    
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
 
     <form method="POST">
         <label for="username">Username:</label><br>
