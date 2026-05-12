@@ -97,6 +97,14 @@ def addDronePage():
         return redirect(url_for('login'))
     return render_template('addDrone.html')
 
+@app.route('/addCarPage', methods=['GET'])
+def addCarPage():
+    user = session.get('user')
+    if not user or user != 'admin':
+        session['error'] = 'Admin-access required'
+        return redirect(url_for('login'))
+    return render_template('addCar.html')
+
 @app.route('/get_drones', methods=['GET'])
 def get_drones():
     ips = redis_server.smembers('ips')

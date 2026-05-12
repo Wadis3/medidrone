@@ -22,7 +22,7 @@
                 }
                 }
             };
-            xhttp.open("POST", "http://192.168.0.2:5003/new_car", true);
+            xhttp.open("POST", "http://192.168.0.2:5003/new_drone", true);
             xhttp.setRequestHeader("Content-Type", "application/json");
             xhttp.send(JSON.stringify({ ip: ip_address, base: base }));
             console.log("hej2");
@@ -34,6 +34,7 @@
     <form action="javascript:Submit()">
         <label for="IP">Last number of IP</label><br>
         <input type="text" id="ip_address"><br>
+        <label for="base">Name of base</label><br>
         <input type="text" id="base"><br>
         <input type="submit" value="Submit">
     </form>
