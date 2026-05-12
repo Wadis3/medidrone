@@ -100,16 +100,18 @@ def addDronePage():
 @app.route('/get_drones', methods=['GET'])
 def get_drones():
     ips = redis_server.smembers('ips')
+    filtered = [x.removeprefix('drone ') for x in set(ips) if x.startswith('drone ')]
     drone_dict = {}
-    for ip in ips:
+    for ip in filtered:
         try: 
             #with requests.Session() as session:
             #    timeout = 5
             #    resp = session.post('http://' + ip + ':5000/ping', timeout=timeout)
-            drone = json.loads(redis_server.get(ip))
+            drone = json.loads(redis_server.get('drone '+ip))
             drone_dict[ip] = {
                     'longitude': drone['longitude'],
                     'latitude': drone['latitude'],
+                    'base': drone['base'],
                     'status': drone['status'],
                     'battery': drone['battery']
             }
@@ -117,6 +119,23 @@ def get_drones():
             print(ip, 'not available')
     
     return jsonify(drone_dict)
+
+@app.route('/get_cars', methods=['GET'])
+def get_cars():
+    ips = redis_server.smembers('ips')
+    filtered = [x.removeprefix('car ') for x in set(ips) if x.startswith('car ')]
+    car_dict = {}
+    for ip in filtered:
+        try:
+            car = json.loads(redis_server.get('car '+ip))
+            car_dict[ip] = {
+                    'longitude': car['longitude'],
+                    'latitude': car['latitude']
+            }
+        except:
+            print(ip, 'not available')
+    
+    return jsonify(car_dict)
 
 @app.route('/get_field', methods=['GET'])
 def get_field():
