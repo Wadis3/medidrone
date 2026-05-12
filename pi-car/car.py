@@ -3,6 +3,7 @@ from flask_cors import CORS
 from sense_hat import SenseHat
 import subprocess
 import redis
+import requests
 
 sense = SenseHat()
 redis_server = redis.Redis('localhost', decode_responses=True)
@@ -11,7 +12,7 @@ app = Flask(__name__)
 CORS(app, supports_credentials=True)
 app.secret_key = 'dljsaklqk24e21cjn!Ew@@dsa5'
 
-myIP = '192.168.0.8'
+myIP = '192.168.0.4'
 stepSize = 50/111111
 
 SERVER_URL = "192.168.0.2:5001/car"
