@@ -37,6 +37,14 @@
       iconAnchor:   [17.5, 25], // point of the icon which will correspond to marker's location
       popupAnchor:  [0, -25] // point from which the popup should open relative to the iconAnchor
     });
+
+    var mediCar = L.icon({
+      iconUrl: 'static/images/medicar.png',
+
+      iconSize: [40, 50],
+      iconAnchor: [17.5, 25],
+      popupAnchor: [0, -25]
+    });
   </script>
 </head>
 
@@ -63,7 +71,10 @@
   
     //L.marker([51.5, -0.09], {icon: greenIcon}).addTo(map);
     var hospitalMarker = L.marker([49.97425, 36.1960665], {icon: hospital}).addTo(map);
+    var carMarker = L.marker([], {icon: aidCar}).addto(map)
     var droneMarkers = {};
+    var carMarkers = {};
+    var rangeCircles = {};
     var drone_count = 0;    
     var fieldMarkers = {};
     //var fieldMarker = L.marker([50.361825, 35.915570], {icon: field}).addTo(map);
@@ -92,6 +103,52 @@
       });
     };
     loadField();
+
+    /*loadCars = function () {
+      $.ajax({
+        url: 'http://192.168.0.2:5000/get_cars'
+      })
+      .done(function(server_response) {
+        var all_cars = Object.keys(server_response);
+        for (const car of all_cars) {
+          var long = server_response[user].longitude;
+          var lat = server_response[user].latitude;
+
+          console.log(car);
+          fieldMarkers[user] = L.marker([long, lat], {icon: mediCar}).addTo(map);
+          fieldMarkers[user].bindPopup("<b>"+car+ "<br>Longitude: "+long + "<br>Latitude: "+lat+"<b>")
+          var circle = L.circle([long, lat], {
+            color: 'orange',
+            fillColor: '#f50',
+            fillOpacity: 0.2,
+            radius: 100000
+          }).addTo(map);
+        }
+      });
+    };
+    loadCars();*/
+
+    function loadCar(car, long, lat){
+    var doc = document.getElementById("map");
+      $( doc ).ready(function() {
+
+        if (car in carMarkers) {
+          carMarkers[car].setLatLng(L.latLng(parseFloat(long), parseFloat(lat)));
+          rangeCircles[car].setLatLng(L.latLng(parseFloat(long), parseFloat(lat)));
+        } else {
+          carMarkers[car] = L.marker([long, lat], {icon: mediCar}).addTo(map);
+          rangeCircles[car] = L.circle([long, lat], {
+            color: 'orange',
+            fillColor: '#f50',
+            fillOpacity: 0.2,
+            radius: 100000
+          }).addTo(map);
+        }
+        carMarkers[car].bindPopup(
+              "<b>"+car + "<br>Longitude: "+ long +"%<br>Latitude: " + lat + "<b>"
+        )
+    });
+  };
     
     var circle = L.circle([49.97425, 36.1960665], {
       color: 'red',
@@ -158,6 +215,22 @@
               row.insertCell(1).textContent = item.longitude;
               row.insertCell(2).textContent = item.latitude;
           }
+      });
+
+      $.ajax({
+        url: 'http://192.168.0.2:5000/get_cars'
+      })
+      .done(function (server_response) {
+          var all_cars = Object.keys(server_response);
+          for (const car of all_cars) {
+            var long = server_response[user].longitude;
+            var lat = server_response[user].latitude;
+            loadCar(car, long, lat);
+          }
+
+
+        
+          
       });
       
       setTimeout(callout, set_delay);

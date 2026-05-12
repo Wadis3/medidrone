@@ -9,6 +9,7 @@
         function Submit() {
             console.log("hejsan")
             var ip_address = document.getElementById("ip_address").value;
+            var car_name = document.getElemenyById("name").value
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
@@ -21,9 +22,9 @@
                 }
                 }
             };
-            xhttp.open("POST", "http://192.168.0.2:5003/new_car", true);
+            xhttp.open("POST", "http://192.168.0.2:5003/new_drone", true);
             xhttp.setRequestHeader("Content-Type", "application/json");
-            xhttp.send(JSON.stringify(ip_address));
+            xhttp.send(JSON.stringify({ ip: ip_address, name: car_name }));
             console.log("hej2");
         }
     </script>
@@ -33,6 +34,7 @@
     <form action="javascript:Submit()">
         <label for="IP">Last number of IP</label><br>
         <input type="text" id="ip_address"><br>
+        <input type="text" id="name"><br>
         <input type="submit" value="Submit">
     </form>
     

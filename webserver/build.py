@@ -6,6 +6,7 @@ from flask_cors import CORS
 import redis
 import json
 import math
+import requests
 
 app = Flask(__name__)
 CORS(app)
@@ -25,15 +26,6 @@ redis_server.set('hospital_coords', json.dumps({
 
 # Translate OSM coordinate (longitude, latitude) to SVG coordinates (x,y).
 # Input coordsG_osm is a tuple (longitude, latitude).
-def delta_coords(meters, angle, current):
-    y_meters = meters * math.sin(angle)
-    x_meters = meters * math.cos(angle)
-
-    d_long = y_meters / 111111
-    d_lat = x_meters / (111111 * math.cos(d_long + current[0]))
-
-    return (current[0] + d_long, current[1] + d_lat)
-
 @app.route('/', methods=['GET'])
 def map():
     user = session.get('user')
@@ -110,14 +102,19 @@ def get_drones():
     ips = redis_server.smembers('ips')
     drone_dict = {}
     for ip in ips:
-        drone = json.loads(redis_server.get(ip))
-        drone_dict[ip] = {
-                'longitude': drone['longitude'],
-                'latitude': drone['latitude'],
-                'status': drone['status'],
-                'battery': drone['battery']
-        }
-    #print(drone_dict)
+        try: 
+            #with requests.Session() as session:
+            #    timeout = 5
+            #    resp = session.post('http://' + ip + ':5000/ping', timeout=timeout)
+            drone = json.loads(redis_server.get(ip))
+            drone_dict[ip] = {
+                    'longitude': drone['longitude'],
+                    'latitude': drone['latitude'],
+                    'status': drone['status'],
+                    'battery': drone['battery']
+            }
+        except:
+            print(ip, 'not available')
     
     return jsonify(drone_dict)
 

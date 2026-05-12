@@ -28,7 +28,9 @@ def update_storage():
     redis_server.sadd('locations', location)
     redis_server.set(location, json.dumps(products))
 
+    pass
 
+#IP = 192.168.0.?
 
 @app.route('/get_Storage', methods=['GET'])
 def get_Storage():
