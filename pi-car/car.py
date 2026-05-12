@@ -17,35 +17,42 @@ stepSize = 50/111111
 
 SERVER_URL = "http://192.168.0.2:5001/car"
 
-coords = [redis_server.get('long'), redis_server.get('lat')]
+coords = []
 
-while True:
-    event = sense.stick.wait_for_event()
-    if event.direction =="right":
-        coords[0] = coords[0] + stepSize
+#coords = [float(redis_server.get('long')), float(redis_server.get('lat'))]
 
-    elif event.direction == "left":
-        coords[0] = coords[0] - stepSize
+@app.route('/', methods=['POST'])
+def main():
+	coords = request.json
+	
+	subprocess.Popen(["python3", "simulator.py", '--ip', myIP])
 
-    elif event.direction == "down":
-        coords[1] = coords[1] + stepSize
+	redis_server.set('long', coords[0])
+	redis_server.set('lat', coords[1])
+	while True:
+	    event = sense.stick.wait_for_event()
+	    if event.direction =="right":
+	        coords[0] = coords[0] + stepSize
 
-    elif event.direction == "up":
-        coords[1] = coords[1] - stepSize
+	    elif event.direction == "left":
+	        coords[0] = coords[0] - stepSize
 
-    with requests.Session() as session:
-        car_info = {
-            'IP': myIP,
-            'longitude': coords[0],
-            'latitude': coords[1]
-        }
-        resp = session.post(SERVER_URL, json=car_info)
+	    elif event.direction == "down":
+	        coords[1] = coords[1] + stepSize
 
-    redis_server.set('long', coords[0])
-    redis_server.set('lat', coords[1])
+	    elif event.direction == "up":
+	        coords[1] = coords[1] - stepSize
 
+	    with requests.Session() as session:
+	        car_info = {
+	            'IP': myIP,
+	            'longitude': coords[0],
+	            'latitude': coords[1]
+	        }
+	        resp = session.post(SERVER_URL, json=car_info)
 
-
+	    redis_server.set('long', coords[0])
+	    redis_server.set('lat', coords[1])
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
