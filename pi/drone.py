@@ -2,6 +2,7 @@ from flask import Flask, request
 from flask_cors import CORS
 import subprocess
 import redis
+import requests
 
 redis_server = redis.Redis('localhost', decode_responses=True)
 
@@ -19,8 +20,10 @@ def main():
     redis_server.set('longitude', coords[0])
     redis_server.set('latitude', coords[1])
     redis_server.set('battery', battery)
-    redis_server.set('base_long', coords[0])
-    redis_server.set('base_lat', coords[1])
+    #redis_server.set('base_long', coords[0])
+    #redis_server.set('base_lat', coords[1])
+    with requests.Session() as session:
+        resp = session.post('http://' + myIP + ':5001/base', coords)
 
 #    with open('data.txt', 'w') as f:
 #        print(str(coords[0]) + "\n" + str(coords[1]))
@@ -30,6 +33,10 @@ def main():
 #        f.write(str(coords[0]) + "\n" + str(coords[1]))
         
     return 'OK'
+
+@app.route('/ping', methods=['POST'])
+def ping():
+    return 'ping'
 
 @app.route('/route', methods=['POST'])
 def route():
