@@ -62,7 +62,7 @@ def newCar():
     if (all_ok):
         #print(drone_ip)
         redis_server.sadd('ips', 'car '+car_ip)
-        redis_server.set(car_ip, json.dumps({
+        redis_server.set('car '+car_ip, json.dumps({
             'name': car_name,
             'longitude': coords['longitude'],
             'latitude': coords['latitude']

@@ -32,7 +32,7 @@ def drone():
 @app.route('/car', methods=['POST'])
 def car():
     car = request.get_json()
-    carIP = car['ip']
+    carIP = car['IP']
     car_long = car['longitude']
     car_lat = car['latitude']
 

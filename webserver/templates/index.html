@@ -71,7 +71,7 @@
   
     //L.marker([51.5, -0.09], {icon: greenIcon}).addTo(map);
     var hospitalMarker = L.marker([49.97425, 36.1960665], {icon: hospital}).addTo(map);
-    var carMarker = L.marker([], {icon: aidCar}).addto(map)
+    //var carMarker = L.marker([], {icon: mediCar}).addTo(map)
     var droneMarkers = {};
     var carMarkers = {};
     var rangeCircles = {};
@@ -147,6 +147,7 @@
         carMarkers[car].bindPopup(
               "<b>"+car + "<br>Longitude: "+ long +"%<br>Latitude: " + lat + "<b>"
         )
+        console.log('bil bör synas')
     });
   };
     
@@ -221,16 +222,12 @@
         url: 'http://192.168.0.2:5000/get_cars'
       })
       .done(function (server_response) {
-          var all_cars = Object.keys(server_response);
-          for (const car of all_cars) {
-            var long = server_response[user].longitude;
-            var lat = server_response[user].latitude;
-            loadCar(car, long, lat);
-          }
-
-
-        
-          
+        var all_cars = Object.keys(server_response);
+        for (const car of all_cars) {
+          var long = server_response[car].longitude;
+          var lat = server_response[car].latitude;
+          loadCar(car, long, lat);
+        }
       });
       
       setTimeout(callout, set_delay);
