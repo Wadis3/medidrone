@@ -20,6 +20,7 @@ redis_server = redis.Redis("localhost", decode_responses=True)
 # Example to send coords as request to the drone
 def send_request(drone_url, coords):
     with requests.Session() as session:
+        
         resp = session.post(drone_url, json=coords)
 
 def route_planner():
@@ -35,11 +36,14 @@ def route_planner():
     lat =  first_request['latitude']
 
     ips = redis_server.smembers('ips')
+    filtered = [x for x in set(ips) if not x.startswith('car ')]
     
+    print(ips)
     time.sleep(2)
 
-    for ip in ips:
+    for ip in filtered:
         drone = json.loads(redis_server.get(ip))
+        print(drone)
         if drone['status'] == 'idle':
             send_request('http://' + ip + ':5000/route', [long, lat])
             redis_server.lpop('requests')

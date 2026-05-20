@@ -2,7 +2,7 @@ from flask import Flask, request
 from flask_cors import CORS
 import redis
 import json
-
+import requests
 
 app = Flask(__name__)
 CORS(app)
@@ -18,35 +18,57 @@ def drone():
     drone_status = drone['status']
     drone_battery = drone['battery']
     
-    data = {
-        'IP': droneIP,
+    # Hämta befintlig data för att behålla base
+    existing = redis_server.get('drone ' + droneIP)
+    drone_base = json.loads(existing).get('base') if existing else None
+    
+    redis_server.set('drone ' + droneIP, json.dumps({
+        'ip': droneIP,
         'longitude': drone_longitude,
         'latitude': drone_latitude,
+        'base': drone_base,
         'status': drone_status,
         'battery': drone_battery
-    }
-    redis_server.set('drone '+droneIP, json.dumps(data))
-    
-    return 'Get data'
+    }))
+    return 'Updated'
 
 @app.route('/car', methods=['POST'])
 def car():
-    car = request.get_json()
-    carIP = car['IP']
-    car_long = car['longitude']
-    car_lat = car['latitude']
-
-    car_name = json.loads(redis_server.get('car '+carIP)).get('name')
-
-    data = {
-        'IP': carIP,
+    data = request.get_json()
+    carIP = data['IP']
+    car_long = data['longitude']
+    car_lat = data['latitude']
+    
+    existing = redis_server.get('car ' + carIP)
+    car_name = json.loads(existing).get('name') if existing else None
+    
+    redis_server.set('car ' + carIP, json.dumps({
+        'ip': carIP,
         'name': car_name,
         'longitude': car_long,
         'latitude': car_lat
-    }
-
-    redis_server.set('car '+carIP, json.dumps(data))
-
+    }))
+    
+    if car_name:
+        base_data = json.loads(redis_server.get(car_name) or '{}')
+        base_data['longitude'] = car_long
+        base_data['latitude'] = car_lat
+        redis_server.set(car_name, json.dumps(base_data))
+        
+        all_ips = redis_server.smembers('ips')
+        drone_ips = [x.removeprefix('drone ') for x in all_ips if x.startswith('drone ')]
+        for drone_ip in drone_ips:
+            drone_data = json.loads(redis_server.get('drone ' + drone_ip) or '{}')
+            if drone_data.get('base') == car_name:
+                try:
+                    requests.post(
+                        f'http://{drone_ip}:5001/base',
+                        json=[car_long, car_lat],
+                        timeout=2
+                    )
+                except Exception as e:
+                    print(f'Kunde inte uppdatera bas för {drone_ip}:', e)
+    
     return 'Updated'
 
 if __name__ == "__main__":

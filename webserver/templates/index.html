@@ -185,6 +185,7 @@
       .done(function (server_response) {
         drone_count = 0;
         var available_drones = Object.keys(server_response);
+        console.log(server_response)
         for (const droneIP of available_drones){
           var long = server_response[droneIP].longitude;
           var lat = server_response[droneIP].latitude;

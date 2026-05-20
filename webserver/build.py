@@ -108,6 +108,7 @@ def addCarPage():
 @app.route('/get_drones', methods=['GET'])
 def get_drones():
     ips = redis_server.smembers('ips')
+    print(ips)
     filtered = [x.removeprefix('drone ') for x in set(ips) if x.startswith('drone ')]
     drone_dict = {}
     for ip in filtered:
@@ -123,26 +124,26 @@ def get_drones():
                     'status': drone['status'],
                     'battery': drone['battery']
             }
-        except:
-            print(ip, 'not available')
+        except Exception as e:
+            print(ip, 'not available:', e)
+    #print(drone_dict)
     
     return jsonify(drone_dict)
 
 @app.route('/get_cars', methods=['GET'])
 def get_cars():
-    ips = redis_server.smembers('ips')
+    ips = redis_server.smembers('ips')  # 'cars' → 'ips'
     filtered = [x.removeprefix('car ') for x in set(ips) if x.startswith('car ')]
     car_dict = {}
     for ip in filtered:
         try:
-            car = json.loads(redis_server.get('car '+ip))
+            car = json.loads(redis_server.get('car ' + ip))
             car_dict[ip] = {
-                    'longitude': car['longitude'],
-                    'latitude': car['latitude']
+                'longitude': car['longitude'],
+                'latitude': car['latitude']
             }
-        except:
-            print(ip, 'not available')
-    
+        except Exception as e:
+            print(ip, 'not available:', e)
     return jsonify(car_dict)
 
 @app.route('/get_field', methods=['GET'])
