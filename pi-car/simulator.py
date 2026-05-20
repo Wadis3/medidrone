@@ -10,8 +10,8 @@ sense = SenseHat()
 redis_server = redis.Redis('localhost', decode_responses=True)
 
 def run(ip, SERVER_URL):
-    coords = (redis_server.get('long'), redis_server.get('lat'))
-    stepSize = 50/111111
+    coords = [float(redis_server.get('long')), float(redis_server.get('lat'))]
+    stepSize = 200/111111
 
     while True:
         event = sense.stick.wait_for_event()
@@ -29,7 +29,7 @@ def run(ip, SERVER_URL):
 
         with requests.Session() as session:
             car_info = {
-                'IP': myIP,
+                'IP': ip,
                 'longitude': coords[0],
                 'latitude': coords[1]
             }
@@ -46,5 +46,5 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--ip", help ='drones ID' ,type=str)
     args = parser.parse_args()
-    drone_long, drone_lat, final_battery = run(args.ip, SERVER_URL)
+    text = run(args.ip, SERVER_URL)
     

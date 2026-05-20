@@ -29,6 +29,7 @@ def main():
 	redis_server.set('lat', coords[1])
 	
 	subprocess.Popen(["python3", "simulator.py", '--ip', myIP])
+	return 'OK'
 
 #	while True:
 #	    event = sense.stick.wait_for_event()
