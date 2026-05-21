@@ -66,6 +66,10 @@ def car():
                         json=[car_long, car_lat],
                         timeout=2
                     )
+                    if drone_data['status'] == 'idle':
+                        drone_data['longitude'] = car_long
+                        drone_data['latitude'] = car_lat
+                    redis_server.set('drone '+drone_ip, json.dumps(drone_data))
                 except Exception as e:
                     print(f'Kunde inte uppdatera bas för {drone_ip}:', e)
     

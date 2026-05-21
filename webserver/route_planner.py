@@ -36,7 +36,7 @@ def route_planner():
     lat =  first_request['latitude']
 
     ips = redis_server.smembers('ips')
-    filtered = [x for x in set(ips) if not x.startswith('car ')]
+    filtered = [x for x in set(ips) if x.startswith('drone ')]
     
     print(ips)
     time.sleep(2)
@@ -45,7 +45,7 @@ def route_planner():
         drone = json.loads(redis_server.get(ip))
         print(drone)
         if drone['status'] == 'idle':
-            send_request('http://' + ip + ':5000/route', [long, lat])
+            send_request('http://' + ip.removeprefix('drone ') + ':5000/route', [long, lat])
             redis_server.lpop('requests')
             return 'Drone ' + ip + ' is delivering to ' + user
     return 'no available drones'
