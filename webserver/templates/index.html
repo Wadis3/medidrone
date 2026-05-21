@@ -1,240 +1,195 @@
 <!DOCTYPE html>
-<html>
+<html lang="sv">
 <head>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-     crossorigin=""/>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-     crossorigin=""></script>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>  
   <meta charset="utf-8">
-  <title>Drone in ukraine</title>
-
-  <script> //MARKERS/ICONS
-    var field = L.icon({
-      iconUrl: 'static/images/field.png',
-      
-      iconSize:     [40, 50], // size of the icon
-      iconAnchor:   [17.5, 25], // point of the icon which will correspond to marker's location
-      popupAnchor:  [0, -25] // point from which the popup should open relative to the iconAnchor
-    });
-    
-    var hospital = L.icon({
-      iconUrl: 'static/images/hospital.png',
-      
-      iconSize:     [40, 50], // size of the icon
-      iconAnchor:   [17.5, 25], // point of the icon which will correspond to marker's location
-      popupAnchor:  [0, -25] // point from which the popup should open relative to the iconAnchor
-    });
-    
-    var drone = L.icon({
-      iconUrl: 'static/images/drone.png',
-      
-      iconSize:     [40, 50], // size of the icon
-      iconAnchor:   [17.5, 25], // point of the icon which will correspond to marker's location
-      popupAnchor:  [0, -25] // point from which the popup should open relative to the iconAnchor
-    });
-
-    var mediCar = L.icon({
-      iconUrl: 'static/images/medicar.png',
-
-      iconSize: [40, 50],
-      iconAnchor: [17.5, 25],
-      popupAnchor: [0, -25]
-    });
-  </script>
-</head>
-
-<body>
-  <p>Hi {{ user }}</p>
-  <a href="/login">Login</a>
-  <br>
-  <a href="/addDronePage">Add a new drone</a>
-  <br>
-  <a href="/booking">Book supplies</a>
-
-  <div id="map" style="height: 720px; width: 1200px;"></div>
-
-  <div id="text"></div>
-
-  <table id="requests"></table>
-
-  <script>
-    var map = L.map('map').setView([50.130673, 36.224064], 9);
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);
-  
-    //L.marker([51.5, -0.09], {icon: greenIcon}).addTo(map);
-    var hospitalMarker = L.marker([49.97425, 36.1960665], {icon: hospital}).addTo(map);
-    //var carMarker = L.marker([], {icon: mediCar}).addTo(map)
-    var droneMarkers = {};
-    var carMarkers = {};
-    var rangeCircles = {};
-    var drone_count = 0;    
-    var fieldMarkers = {};
-    //var fieldMarker = L.marker([50.361825, 35.915570], {icon: field}).addTo(map);
-    //var fieldMarker2 = L.marker([50.286543, 36.941948], {icon: field}).addTo(map);
-    
-    //setLatLng(<LatLng> latlng);
-      
-    hospitalMarker.bindPopup("<b>Charkiv hospital</b>");
-    //fieldMarker.bindPopup("<b>Field hospital</b>");
-    //fieldMarker2.bindPopup("<b>Field hospital</b>");
-
-    loadField = function () {
-      $.ajax({
-        url: 'http://192.168.0.2:5000/get_field'
-      })
-      .done(function (server_response) {
-        var all_field = Object.keys(server_response);
-        for (const user of all_field) {
-          var long = server_response[user].longitude;
-          var lat = server_response[user].latitude;
-
-          console.log(user);
-          fieldMarkers[user] = L.marker([long, lat], {icon: field}).addTo(map);
-          fieldMarkers[user].bindPopup("<b>"+user+"</b>");
-        }
-      });
-    };
-    loadField();
-
-    /*loadCars = function () {
-      $.ajax({
-        url: 'http://192.168.0.2:5000/get_cars'
-      })
-      .done(function(server_response) {
-        var all_cars = Object.keys(server_response);
-        for (const car of all_cars) {
-          var long = server_response[user].longitude;
-          var lat = server_response[user].latitude;
-
-          console.log(car);
-          fieldMarkers[user] = L.marker([long, lat], {icon: mediCar}).addTo(map);
-          fieldMarkers[user].bindPopup("<b>"+car+ "<br>Longitude: "+long + "<br>Latitude: "+lat+"<b>")
-          var circle = L.circle([long, lat], {
-            color: 'orange',
-            fillColor: '#f50',
-            fillOpacity: 0.2,
-            radius: 100000
-          }).addTo(map);
-        }
-      });
-    };
-    loadCars();*/
-
-    function loadCar(car, long, lat){
-    var doc = document.getElementById("map");
-      $( doc ).ready(function() {
-
-        if (car in carMarkers) {
-          carMarkers[car].setLatLng(L.latLng(parseFloat(long), parseFloat(lat)));
-          rangeCircles[car].setLatLng(L.latLng(parseFloat(long), parseFloat(lat)));
-        } else {
-          carMarkers[car] = L.marker([long, lat], {icon: mediCar}).addTo(map);
-          rangeCircles[car] = L.circle([long, lat], {
-            color: 'orange',
-            fillColor: '#f50',
-            fillOpacity: 0.2,
-            radius: 100000
-          }).addTo(map);
-        }
-        carMarkers[car].bindPopup(
-              "<b>"+car + "<br>Longitude: "+ long +"%<br>Latitude: " + lat + "<b>"
-        )
-        console.log('bil bör synas')
-    });
-  };
-    
-    var circle = L.circle([49.97425, 36.1960665], {
-      color: 'red',
-      fillColor: '#f03',
-      fillOpacity: 0.2,
-      radius: 100000
-    }).addTo(map);
-  </script>
-
-  <script type="text/javascript">
-    function LoadDrone(droneIP, long, lat, status, battery) {
-      var doc = document.getElementById("map");
-      $( doc ).ready(function() {
-        //console.log(droneIP);
-        if (droneIP in droneMarkers) {
-          droneMarkers[droneIP].setLatLng(L.latLng(parseFloat(long), parseFloat(lat)));
-        } else {
-          droneMarkers[droneIP] = L.marker([long, lat], {icon: drone}).addTo(map);
-        }
-        droneMarkers[droneIP].bindPopup(
-              "<b>IP: "+droneIP + "<br>Battery: "+ battery +"%<br>Status: " + status + "<b>"
-            )
-      })
+  <title>Preview – kartsidan</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f0f2f5;
+      padding: 20px;
+      color: #222;
     }
-  </script> 
 
-  <script>
-    var set_delay = 50,
-    callout = function () {
-      $.ajax({
-        url: 'http://192.168.0.2:5000/get_drones'
-      })
-      .done(function (server_response) {
-        drone_count = 0;
-        var available_drones = Object.keys(server_response);
-        console.log(server_response)
-        for (const droneIP of available_drones){
-          var long = server_response[droneIP].longitude;
-          var lat = server_response[droneIP].latitude;
-          var status = server_response[droneIP].status;
-          var battery = parseInt(server_response[droneIP].battery);
-          if (status == "idle") {
-            drone_count += 1;
-          }
-          //console.log(droneIP);
-          LoadDrone(droneIP, long, lat, status, battery);
-        }
-        document.getElementById("text").innerHTML = "<h2>Available drones: " + drone_count + "</h2>";
-      });
-      
-      $.ajax({
-        url: 'http://192.168.0.2:5000/get_requests'
-      })
-      .done(function (server_response) {
-          var table = document.getElementById("requests");
-          table.innerHTML = "";
-          var row = table.insertRow()
-          row.insertCell(0).textContent = "user";
-          row.insertCell(1).textContent = "longitude";
-          row.insertCell(2).textContent = "latitude";
-          for (const request of server_response) {
-              var item = JSON.parse(request)
-              var row = table.insertRow();
-              row.insertCell(0).textContent = item.user;
-              row.insertCell(1).textContent = item.longitude;
-              row.insertCell(2).textContent = item.latitude;
-          }
-      });
+    .topbar {
+      background: #3d4ece;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 8px 8px 0 0;
+    }
+    .topbar-title { color: #fff; font-size: 16px; font-weight: bold; }
+    .topbar-user { color: rgba(255,255,255,0.8); font-size: 13px; }
+    .topbar-user a { color: rgba(255,255,255,0.65); text-decoration: none; margin-left: 12px; }
+    .topbar-user a:hover { color: #fff; }
 
-      $.ajax({
-        url: 'http://192.168.0.2:5000/get_cars'
-      })
-      .done(function (server_response) {
-        var all_cars = Object.keys(server_response);
-        for (const car of all_cars) {
-          var long = server_response[car].longitude;
-          var lat = server_response[car].latitude;
-          loadCar(car, long, lat);
-        }
-      });
-      
-      setTimeout(callout, set_delay);
-        
-    };
-    callout();
-  </script>
+    .navbar {
+      background: #fff;
+      padding: 10px 20px;
+      display: flex;
+      gap: 10px;
+      border-bottom: 1px solid #eee;
+    }
+    .btn-primary {
+      padding: 7px 14px;
+      background: #3d4ece;
+      color: #fff;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: bold;
+    }
+    .btn-primary:hover { background: #2f3aa8; }
+    .btn-outline {
+      padding: 7px 14px;
+      background: #fff;
+      color: #3d4ece;
+      border: 1px solid #3d4ece;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: bold;
+    }
+    .btn-outline:hover { background: #eef0fc; }
+    .btn-secondary {
+      padding: 7px 14px;
+      background: #fff;
+      color: #555;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 13px;
+    }
+    .btn-secondary:hover { background: #f5f5f5; }
+
+    .main {
+      background: #fff;
+      border-radius: 0 0 8px 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .map-placeholder {
+      background: #e8ecf0;
+      height: 380px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 8px;
+      color: #888;
+      font-size: 14px;
+      border-bottom: 1px solid #ddd;
+    }
+    .map-placeholder span:first-child { font-size: 40px; }
+    .map-placeholder small { font-size: 12px; color: #aaa; }
+
+    .bottom-panel {
+      display: flex;
+      gap: 16px;
+      padding: 16px 20px;
+    }
+
+    .stat-card {
+      flex: 0 0 auto;
+      background: #f8f8f8;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .stat-card .number { font-size: 32px; font-weight: bold; color: #3d4ece; }
+    .stat-card .label { font-size: 13px; color: #555; line-height: 1.4; }
+
+    .table-card {
+      flex: 1;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .table-card .table-header {
+      padding: 8px 14px;
+      background: #f8f8f8;
+      border-bottom: 1px solid #eee;
+      font-size: 12px;
+      font-weight: bold;
+      color: #555;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead tr { background: #f0f2f5; }
+    th { padding: 7px 14px; text-align: left; color: #555; font-weight: bold; font-size: 12px; }
+    td { padding: 7px 14px; color: #222; border-top: 1px solid #eee; }
+    tr:nth-child(even) td { background: #fafafa; }
+
+    .back { display: inline-block; padding: 14px 20px 0; color: #555; text-decoration: none; font-size: 14px; }
+    .back:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <div style="max-width: 900px; margin: 0 auto;">
+
+    <div class="topbar">
+      <span class="topbar-title">🛸 MediDrone</span>
+      <span class="topbar-user">
+        Inloggad som <strong style="color:#fff;">{{ user }}</strong>
+        <a href="/login">Logga ut</a>
+      </span>
+    </div>
+
+    <div class="navbar">
+      <a href="/addDronePage" class="btn-primary">+ Lägg till drönare</a>
+      <a href="/booking" class="btn-outline">Boka leverans</a>
+      <a href="/addCarPage" class="btn-secondary">+ Lägg till bil</a>
+    </div>
+
+    <div class="main">
+
+      <div class="map-placeholder">
+        <span>🗺️</span>
+        <span>Leaflet-karta renderas här</span>
+        <small>OpenStreetMap · Kharkiv-området</small>
+      </div>
+
+      <div class="bottom-panel">
+
+        <div class="stat-card">
+          <div class="number" id="drone-count">3</div>
+          <div class="label">Tillgängliga<br>drönare</div>
+        </div>
+
+        <div class="table-card">
+          <div class="table-header">Aktiva förfrågningar</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Användare</th>
+                <th>Longitud</th>
+                <th>Latitud</th>
+              </tr>
+            </thead>
+            <tbody id="requests">
+              <tr>
+                <td>alpha</td><td>50.3618</td><td>35.9155</td>
+              </tr>
+              <tr>
+                <td>bravo</td><td>50.2865</td><td>36.9419</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

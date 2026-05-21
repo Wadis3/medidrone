@@ -1,43 +1,120 @@
 <!DOCTYPE html>
-<html>
+<html lang="sv">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8">
-    <title>Add a drone</title>
+  <meta charset="utf-8">
+  <title>Add a car</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 20px;
+      color: #222;
+    }
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 28px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    h1 { margin-top: 0; font-size: 22px; }
+    .back { display: inline-block; margin-bottom: 16px; color: #555; text-decoration: none; font-size: 14px; }
+    .back:hover { text-decoration: underline; }
 
-    <script type="text/javascript">
-        function Submit() {
-            console.log("hejsan")
-            var ip_address = document.getElementById("ip_address").value;
-            var car_name = document.getElementById("name").value;
-            var xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = function() {
-                if (this.readyState == 4 && this.status == 200) {
-                try{
-                    var resp = this.responseText;
-                    alert(resp);
-                }
-                catch(err){
-                    alert(this.responseText);
-                }
-                }
-            };
-            xhttp.open("POST", "http://192.168.0.2:5003/new_car", true);
-            xhttp.setRequestHeader("Content-Type", "application/json");
-            xhttp.send(JSON.stringify({ ip: ip_address, name: car_name }));
-            console.log("hej2");
+    fieldset {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+    legend { font-weight: bold; padding: 0 8px; font-size: 14px; }
+
+    label { display: block; font-size: 13px; color: #555; margin-bottom: 4px; }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .field { margin-bottom: 10px; }
+    .field:last-child { margin-bottom: 0; }
+
+    button.submit {
+      width: 100%;
+      padding: 14px;
+      background: #3d4ece;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button.submit:hover { background: #2f3aa8; }
+
+    #summary {
+      margin-top: 16px;
+      padding: 12px;
+      background: #f8f8f8;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      display: none;
+    }
+  </style>
+
+  <script>
+    function Submit() {
+      var ip_address = document.getElementById("ip_address").value;
+      var car_name = document.getElementById("name").value;
+      var summary = document.getElementById("summary");
+      summary.style.display = "block";
+      summary.textContent = "Skickar...";
+
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState !== 4) return;
+        if (this.status === 200) {
+          summary.textContent = "Bil tillagd.\n\nSvar: " + this.responseText;
+        } else {
+          summary.textContent = "Kunde inte nå servern (status " + this.status + ").";
         }
-    </script>
+      };
+      xhttp.open("POST", "http://192.168.0.2:5003/new_car", true);
+      xhttp.setRequestHeader("Content-Type", "application/json");
+      xhttp.send(JSON.stringify({ ip: ip_address, name: car_name }));
+    }
+  </script>
 </head>
 <body>
-    <a href="/">Home</a>
+  <div class="container">
+    <a href="/" class="back">&larr; Tillbaka</a>
+    <h1>Lägg till bil</h1>
+
     <form action="javascript:Submit()">
-        <label for="IP">Last number of IP</label><br>
-        <input type="text" id="ip_address"><br>
-        <label for="name">Name of car</label><br>
-        <input type="text" id="name"><br>
-        <input type="submit" value="Submit">
+      <fieldset>
+        <legend>Nätverksinställningar</legend>
+        <div class="field">
+          <label for="ip_address">Sista siffran i IP-adressen</label>
+          <input type="text" id="ip_address" placeholder="t.ex. 42">
+        </div>
+        <div class="field">
+          <label for="name">Bilnamn</label>
+          <input type="text" id="name" placeholder="t.ex. Volvo-1">
+        </div>
+      </fieldset>
+
+      <button type="submit" class="submit">Lägg till bil</button>
     </form>
-    
+
+    <div id="summary"></div>
+  </div>
 </body>
 </html>
