@@ -8,27 +8,29 @@ import json
 app = Flask(__name__)
 CORS(app)
 
-redis_server = redis.Redis("localhost", decode_responses=True)
+redis_server = redis.Redis("localhost", 6380, decode_responses=True)
 
 @app.route('/', methods=['GET']) 
 def bank():
-    return render_template('bank.html')
+    return render_template('index.html')
+
+def update_storage(location, product, amount):
+    existing = redis_server.get(location)
+    products = json.loads(existing) if existing else {}  # Tom dict om nyckeln saknas
+    products[product] = amount
+    redis_server.sadd('locations', location)
+    redis_server.set(location, json.dumps(products))
 
 @app.route('/update_Storage', methods=['POST']) #Skicka med location, product, new amount
-def update_storage():
+def update_storage_request():
     update = request.json
     location = update[0]
     product = update[1]
     amount = update[2]
 
-    products = json.loads(redis_server.get(location))
-    products[product] = amount
+    update_storage(location, product, amount)
 
-
-    redis_server.sadd('locations', location)
-    redis_server.set(location, json.dumps(products))
-
-    pass
+    return 'updated'
 
 #IP = 192.168.0.?
 
@@ -45,7 +47,12 @@ def get_Storage():
             
     return jsonify(storage_dict)
 
+update_storage('hospital_coords', 'blood A', 70)
+update_storage('hospital_coords', 'blood B', 70)
+update_storage('hospital_coords', 'blood AB', 70)
+update_storage('hospital_coords', 'plasma', 70)
+update_storage('hospital_coords', 'bandage', 70)
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port='5000')
+    app.run(debug=True, host='0.0.0.0', port='5010')
 

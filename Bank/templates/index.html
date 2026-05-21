@@ -20,15 +20,27 @@ td, th {
 }
 
 </style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+<table id = "storageTable">
+    <tr>
+        <th>Location</th>
+        <th>Product</th>
+        <th>Available amount</th>
+    </tr>
+</table>
 <script type="text/javascript">
- const table = document.getElementById("storageTable");
+  const table = document.getElementById("storageTable");
 
- var set_delay = 50,
+  var set_delay = 50,
     callout = function () {
       $.ajax({
-        url: 'http://127.0.0.1:5000/get_Storage'
+        url: 'http://127.0.0.1:5010/get_Storage'
       })
       .done(function (server_response) {
+        console.log("svar:", server_response);  // Får du något svar?
+        console.log("table:", table);    
         table.innerHTML = 
         "<tr>"+
             "<th>Location</th>"+
@@ -58,14 +70,5 @@ td, th {
     callout();
 
 </script>
-</head>
-<body>
-<table id = "storageTable">
-    <tr>
-        <th>Location</th>
-        <th>Product</th>
-        <th>Available amount</th>
-    </tr>
-</table>
 </body>
 </html>
