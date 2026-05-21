@@ -7,6 +7,7 @@ import redis
 import json
 import requests
 import time
+import math
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -36,7 +37,7 @@ def route_planner():
     lat =  first_request['latitude']
 
     ips = redis_server.smembers('ips')
-    filtered = [x for x in set(ips) if not x.startswith('car ')]
+    filtered = [x for x in set(ips) if x.startswith('drone ')]
     
     print(ips)
     time.sleep(2)
@@ -48,30 +49,42 @@ def route_planner():
     droneDistances = []
     for ip in availableDrones:
         drone = json.loads(redis_server.get(ip))
-        droneLong = float(drone['longitude'])
-        droneLat = float(drone['latitude'])
-        distance = math.sqrt((droneLong-long)**2 + (droneLat-lat)**2)
-        droneDistances.append(distance)
-   
-    closest = min(droneDistances)
-    indexOfClosest = droneDistances.index(closest)
-
-    drone = availableDrones[indexOfClosest]
-
-    ip = availableDrones[indexOfClosest]
-
+        
+def route_planner():
+    pending_requests = redis_server.lrange('requests', 0, -1)
+    if len(pending_requests) == 0:
+        return 'no requests'
+    
+    first_request = json.loads(pending_requests[0])
+    user = first_request['user']
+    long = first_request['longitude']
+    lat = first_request['latitude']
+    
+    ips = redis_server.smembers('ips')
+    filtered = [x.removeprefix('drone ') for x in set(ips) if x.startswith('drone ')]
+    
+    available_drones = []
+    drone_distances = []
+    
+    for ip in filtered:
+        drone = json.loads(redis_server.get('drone ' + ip))
+        print(drone)
+        if drone['status'] == 'idle':
+            drone_long = float(drone['longitude'])
+            drone_lat = float(drone['latitude'])
+            distance = math.sqrt((drone_long - long)**2 + (drone_lat - lat)**2)
+            available_drones.append(ip)
+            drone_distances.append(distance)
+    
+    if len(available_drones) == 0:
+        return 'no available drones'
+    
+    closest_index = drone_distances.index(min(drone_distances))
+    ip = available_drones[closest_index]
+    
     send_request('http://' + ip + ':5000/route', [long, lat])
     redis_server.lpop('requests')
     return 'Drone ' + ip + ' is delivering to ' + user
-#TILL
-   # for ip in filtered:
-   #     drone = json.loads(redis_server.get(ip))
-   #     print(drone)
-   #    if drone['status'] == 'idle':
-   #         send_request('http://' + ip + ':5000/route', [long, lat])
-   #        redis_server.lpop('requests')
-   #        return 'Drone ' + ip + ' is delivering to ' + user
-   #return 'no available drones'
 
 if __name__ == "__main__":
     while True:

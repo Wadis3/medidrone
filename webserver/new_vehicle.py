@@ -54,7 +54,7 @@ def newCar():
     # Hämta sjukhuskoordinater som startposition
     coords = json.loads(redis_server.get('hospital_coords'))
     
-    all_ok = send_request('http://' + car_ip + ':5000/', (coords['longitude'], coords['latitude']))
+    all_ok = send_request('http://' + car_ip + ':5003/', (coords['longitude'], coords['latitude']))
     if all_ok:
         redis_server.sadd('ips', 'car ' + car_ip)
         redis_server.sadd('bases', car_name)
