@@ -1,21 +1,100 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="utf-8">
+  <title>Login</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 20px;
+      color: #222;
+    }
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 28px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    h1 { margin-top: 0; font-size: 22px; }
+    .back { display: inline-block; margin-bottom: 6px; color: #555; text-decoration: none; font-size: 14px; }
+    .back:hover { text-decoration: underline; }
+    .nav-links { margin-bottom: 20px; display: flex; flex-direction: column; gap: 2px; }
+
+    fieldset {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+    legend { font-weight: bold; padding: 0 8px; font-size: 14px; }
+
+    .field { margin-bottom: 10px; }
+    .field:last-child { margin-bottom: 0; }
+    label { display: block; font-size: 13px; color: #555; margin-bottom: 4px; }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .error {
+      background: #fff0f0;
+      border: 1px solid #f5c6c6;
+      color: #c0392b;
+      padding: 10px 14px;
+      border-radius: 4px;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    button.submit {
+      width: 100%;
+      padding: 14px;
+      background: #3d4ece;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button.submit:hover { background: #2f3aa8; }
+  </style>
 </head>
 <body>
-    <a href="/">Map</a><br>
-    <a href="/register">Register new account</a>
-    
+  <div class="container">
+    <div class="nav-links">
+      <a href="/" class="back">← Map</a>
+      <a href="/register" class="back">Registrera nytt konto</a>
+    </div>
+
+    <h1>Login</h1>
+
     {% if error %}
-        <p style="color: red;">{{ error }}</p>
+      <div class="error">{{ error }}</div>
     {% endif %}
 
     <form method="POST">
-        <label for="username">Username:</label><br>
-        <input type="text" name="username" placeholder="Username"><br>
-        <label for="password">Password:</label><br>
-        <input type="text" name="password"><br>
-        <button type="submit">Login</button>
+      <fieldset>
+        <legend>Inloggning</legend>
+        <div class="field">
+          <label for="username">Username</label>
+          <input type="text" name="username" placeholder="Username">
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="text" name="password">
+        </div>
+      </fieldset>
+      <button type="submit" class="submit">Login</button>
     </form>
+  </div>
 </body>
 </html>
