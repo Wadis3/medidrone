@@ -18,6 +18,10 @@ def main():
     redis_server.set('base_long', base_coords[0])
     redis_server.set('base_lat', base_coords[1])
     
+    if redis_server.get('status') == 'idle':
+        redis_server.set('longitude', base_coords[0])
+        redis_server.set('latitude', base_coords[1])
+            
     return 'New base coords registered'
 
 @app.route('/ping', methods=['POST'])

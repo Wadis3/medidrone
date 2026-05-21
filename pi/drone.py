@@ -10,7 +10,7 @@ app = Flask(__name__)
 CORS(app, supports_credentials=True)
 app.secret_key = 'dljsaklqk24e21cjn!Ew@@dsa5'
 
-myIP = '192.168.0.5'
+myIP = '192.168.0.3'
 battery = 100.0
 
 @app.route('/', methods=['POST']) #Körs i new_drone
@@ -23,7 +23,7 @@ def main():
     #redis_server.set('base_long', coords[0])
     #redis_server.set('base_lat', coords[1])
     with requests.Session() as session:
-        resp = session.post('http://' + myIP + ':5001/base', coords)
+        resp = session.post('http://' + myIP + ':5001/base', json=coords)
 
 #    with open('data.txt', 'w') as f:
 #        print(str(coords[0]) + "\n" + str(coords[1]))

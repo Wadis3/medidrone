@@ -27,6 +27,7 @@ def update_coords(ip, SERVER_URL, coords, battery, status):
     redis_server.set('longitude', coords[0])
     redis_server.set('latitude', coords[1])
     redis_server.set('battery', battery)
+    redis_server.set('status', status)
 #    with open("data.txt", "w") as f:
 #        print(str(coords[0]) + "\n" + str(coords[1]) + '\n' + str(battery))
 #        f.write(str(coords[0]) + "\n" + str(coords[1]) + '\n' + str(battery))
