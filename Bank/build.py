@@ -50,8 +50,16 @@ def get_Storage():
 update_storage('hospital_coords', 'blood A', 70)
 update_storage('hospital_coords', 'blood B', 70)
 update_storage('hospital_coords', 'blood AB', 70)
+update_storage('hospital_coords', 'blood O', 70)
 update_storage('hospital_coords', 'plasma', 70)
 update_storage('hospital_coords', 'bandage', 70)
+
+update_storage('car4', 'blood A', 70)
+update_storage('car4', 'blood B', 70)
+update_storage('car4', 'blood AB', 70)
+update_storage('car4', 'blood O', 70)
+update_storage('car4', 'plasma', 70)
+update_storage('car4', 'bandage', 70)
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port='5010')

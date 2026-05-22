@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <title>Book supplies</title>
+
+  <script type="text/javascript">
+    function Submit() {
+      console.log("hejsan")
+      //var ip_address = document.getElementById("ip_address").value;
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+        try{
+          var resp = this.responseText;
+            alert(resp);
+        }
+        catch(err){
+          alert(this.responseText);
+        }
+        }
+      };
+      xhttp.open("POST", "http://192.168.0.2:5004/new_request", true);
+      xhttp.setRequestHeader("Content-Type", "application/json");
+      xhttp.send(JSON.stringify({ user: "{{ user }}" }));  
+
+    }
+</script>
+</head>
+<body>
+  <a href="/">Home</a>
+  <form action="javascript:Submit()">
+      <input type="submit" value="Submit">
+  </form>
+    
+</body>
+</html>
