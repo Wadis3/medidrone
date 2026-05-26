@@ -16,12 +16,12 @@ def bank():
 
 def update_storage(location, product, amount):
     existing = redis_server.get(location)
-    products = json.loads(existing) if existing else {}  # Tom dict om nyckeln saknas
+    products = json.loads(existing) if existing else {}
     products[product] = amount
     redis_server.sadd('locations', location)
     redis_server.set(location, json.dumps(products))
 
-@app.route('/update_Storage', methods=['POST']) #Skicka med location, product, new amount
+@app.route('/update_Storage', methods=['POST'])
 def update_storage_request():
     update = request.json
     location = update[0]
@@ -31,8 +31,6 @@ def update_storage_request():
     update_storage(location, product, amount)
 
     return 'updated'
-
-#IP = 192.168.0.?
 
 @app.route('/get_Storage', methods=['GET'])
 def get_Storage():
@@ -60,6 +58,13 @@ update_storage('car4', 'blood AB', 70)
 update_storage('car4', 'blood O', 70)
 update_storage('car4', 'plasma', 70)
 update_storage('car4', 'bandage', 70)
+
+update_storage('car3', 'blood A', 70)
+update_storage('car3', 'blood B', 70)
+update_storage('car3', 'blood AB', 70)
+update_storage('car3', 'blood O', 70)
+update_storage('car3', 'plasma', 70)
+update_storage('car3', 'bandage', 70)
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port='5010')

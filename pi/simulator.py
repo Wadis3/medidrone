@@ -18,8 +18,8 @@ def delta(meters, angle, current, battery):
     y_meters = meters * math.sin(angle)
     x_meters = meters * math.cos(angle)
 
-    d_long = (y_meters / 111111) * -1#* (-1 if direction[0] < 0 else 1)
-    d_lat = x_meters / (111111 * math.cos(d_long + current[0])) * -1#* (-1 if direction[1] > 0 else 1)
+    d_long = (y_meters / 111111) * -1
+    d_lat = x_meters / (111111 * math.cos(d_long + current[0])) * -1
 
     return d_long, d_lat, battery
 
@@ -28,10 +28,7 @@ def update_coords(ip, SERVER_URL, coords, battery, status):
     redis_server.set('latitude', coords[1])
     redis_server.set('battery', battery)
     redis_server.set('status', status)
-#    with open("data.txt", "w") as f:
-#        print(str(coords[0]) + "\n" + str(coords[1]) + '\n' + str(battery))
-#        f.write(str(coords[0]) + "\n" + str(coords[1]) + '\n' + str(battery))
-    # detta är ett test
+    
     with requests.Session() as session:
         drone_info = {'ip': ip,
                         'longitude': coords[0],
@@ -43,7 +40,7 @@ def update_coords(ip, SERVER_URL, coords, battery, status):
 
 def run(ip, current_coords, to_coords, battery, SERVER_URL):
     drone_coords = current_coords
-    #direction = (drone_coords[0] - to_coords[0], drone_coords[1] - to_coords[1])
+    
     while math.sqrt((drone_coords[0] - to_coords[0])**2 + (drone_coords[1] - to_coords[1])**2) > 0.001:
         angle = math.atan2((drone_coords[0] - to_coords[0]), (drone_coords[1] - to_coords[1]))
         print(angle)
@@ -62,14 +59,7 @@ def run(ip, current_coords, to_coords, battery, SERVER_URL):
     update_coords(ip, SERVER_URL, drone_coords, battery, 'loading')
 
     base_coords = (float(redis_server.get('base_long')), float(redis_server.get('base_lat')))
-
-#    f = open("base.txt")
-#    
-#    base_coords = (float(f.readline()), float(f.readline()))
-#    
-#    f.close()
     
-    #direction = (drone_coords[0] - base_coords[0], drone_coords[1] - base_coords[1])
 
     while math.sqrt((drone_coords[0] - base_coords[0])**2 + (drone_coords[1] - base_coords[1])**2) > 0.001:
         angle = math.atan2((drone_coords[0] - base_coords[0]), (drone_coords[1] - base_coords[1]))
